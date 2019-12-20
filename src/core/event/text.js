@@ -1,0 +1,60 @@
+import processEvents from './event.js'
+
+const EVENT_ID            = 0
+const TIME                = 1
+const LATITUDE            = 2
+const LONGITUDE           = 3
+const DEPTH               = 4
+const AUTHOR              = 5
+const CATALOG             = 6
+const CONSTRIBUTOR        = 7
+const CONSTRIBUTOR_ID     = 8
+const MAG_TYPE            = 9
+const MAGNITUDE           = 10
+const MAG_AUTHOR          = 11
+const EVENT_LOCATION_NAME = 12
+const EVENT_TYPE          = 13
+
+export const parse = text => {
+  let lines = text.split('\n')
+  let events = []
+  for (let line of lines.slice(1)) {
+    if (line === '') {
+      continue
+    }
+    let splited = line.split('|')
+    let event = {
+      origin: [{
+        time: {
+          value: splited[TIME]
+        },
+        latitude: {
+          value: parseFloat(splited[LATITUDE])
+        },
+        longitude: {
+          value: parseFloat(splited[LONGITUDE])
+        },
+        depth: {
+          value: parseFloat(splited[DEPTH])
+        },
+        region: splited[EVENT_LOCATION_NAME],
+        creation_info: {
+          author: splited[AUTHOR],
+        }
+      }],
+      magnitude: [{
+        mag: {
+          value: parseFloat(splited[MAGNITUDE])
+        },
+        type: splited[MAG_TYPE],
+        creation_info: {
+          author: splited[MAG_AUTHOR]
+        }
+      }],
+      type: splited[EVENT_TYPE],
+      public_id: splited[EVENT_ID]
+    }
+    events.push(event)
+  }
+  return events.map(e => processEvents(e))
+}
