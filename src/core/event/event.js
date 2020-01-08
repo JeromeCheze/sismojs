@@ -16,19 +16,19 @@ export default function processEvents (e) {
       o.creation_info._pretty_creation_time = o.creation_info._creation_time.toISOString().replace('T', ' ').substr(0, 19)
     }
     let [lat, lon] = [o.latitude.value, o.longitude.value]
-    o.latitude._pretty = lat > 0 ? `${lat.toFixed(2)}° N` : `${(-1*lat).toFixed(2)}° S`
+    o.latitude._pretty = lat > 0 ? `${lat.toFixed(2)}° N` : `${(-1 * lat).toFixed(2)}° S`
     o.latitude._pretty_uncertainty = o.latitude.uncertainty != null ? `+/- ${(o.latitude.uncertainty).toFixed(1)} km` : ''
-    o.longitude._pretty = lon > 0 ? `${lon.toFixed(2)}° E` : `${(-1*lon).toFixed(2)}° W`
+    o.longitude._pretty = lon > 0 ? `${lon.toFixed(2)}° E` : `${(-1 * lon).toFixed(2)}° W`
     o.longitude._pretty_uncertainty = o.longitude.uncertainty != null ? `+/- ${(o.longitude.uncertainty).toFixed(1)} km` : ''
-    o.depth._pretty = `${(o.depth.value/1000).toFixed(0)} km`
-    o.depth._pretty_uncertainty = o.depth.uncertainty != null ? `+/- ${(o.depth.uncertainty/1000).toFixed(1)} km` : '(fixed)'
+    o.depth._pretty = `${(o.depth.value / 1000).toFixed(0)} km`
+    o.depth._pretty_uncertainty = o.depth.uncertainty != null ? `+/- ${(o.depth.uncertainty / 1000).toFixed(1)} km` : '(fixed)'
   }
   if (e.amplitude != null && e.station_magnitude != null) {
     for (let a of e.amplitude) {
       a._seedid = toSeedId(a.waveform_id)
     }
     for (let sm of e.station_magnitude) {
-      sm._amplitude = e.amplitude.find(x => x.public_id == sm.amplitude_id)
+      sm._amplitude = e.amplitude.find(x => x.public_id === sm.amplitude_id)
       sm.mag._pretty = sm.mag.value.toFixed(2)
       sm._seedid = toSeedId(sm.waveform_id)
     }
@@ -42,7 +42,7 @@ export default function processEvents (e) {
       }
       if (e.station_magnitude != null && m.station_magnitude_contribution != null) {
         for (let smc of m.station_magnitude_contribution) {
-          smc._station_magnitude = e.station_magnitude.find(x => x.public_id == smc.station_magnitude_id)
+          smc._station_magnitude = e.station_magnitude.find(x => x.public_id === smc.station_magnitude_id)
           if (smc.residual == null) {
             smc.residual = smc._station_magnitude.mag.value - m.mag.value
           }
@@ -54,7 +54,7 @@ export default function processEvents (e) {
   } else {
     e.magnitude = []
   }
-  e._po = e.preferred_origin_id ? e.origin.find(x => x.public_id == e.preferred_origin_id) : e.origin[0]
+  e._po = e.preferred_origin_id ? e.origin.find(x => x.public_id === e.preferred_origin_id) : e.origin[0]
   if (e._po.region) {
     e._region = e._po.region
   } else if (e.description) {
@@ -64,7 +64,7 @@ export default function processEvents (e) {
   }
   e._region = e._region.toUpperCase()
   if (e.preferred_magnitude_id) {
-    e._pm = e.magnitude.find(x => x.public_id == e.preferred_magnitude_id)
+    e._pm = e.magnitude.find(x => x.public_id === e.preferred_magnitude_id)
   } else {
     e.preferred_magnitude_id = null
   }

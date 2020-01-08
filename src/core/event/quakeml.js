@@ -61,7 +61,7 @@ const RESOURCE_ID_KEYS = [
   '/event_parameters/event/station_magnitude/public_id',
   '/event_parameters/event/station_magnitude/amplitude_id',
   '/event_parameters/event/amplitude/public_id',
-  '/event_parameters/event/amplitude/pick_id',
+  '/event_parameters/event/amplitude/pick_id'
 ]
 
 const toSnakeCase = (x) => {
@@ -69,9 +69,9 @@ const toSnakeCase = (x) => {
 }
 
 const removeResourcePrefix = (id) => {
-  if (id.indexOf('smi:org.gfz-potsdam.de/geofon/') == 0) {
+  if (id.indexOf('smi:org.gfz-potsdam.de/geofon/') === 0) {
     return id.replace('smi:org.gfz-potsdam.de/geofon/', '')
-  } else if (id.indexOf('smi:') == 0) {
+  } else if (id.indexOf('smi:') === 0) {
     return id.split('/').slice(2).join('/')
   }
   console.warn(`Failed to remove prefix of resource ID: ${id}`)
@@ -90,7 +90,7 @@ const xmlNodeToJson = (x, path, rules) => {
     }
     obj[key] = conv ? conv(a.value) : a.value
   }
-  if (x.children.length == 0) {
+  if (x.children.length === 0) {
     // console.log(path);
     let conv = rules[path]
     if (RESOURCE_ID_KEYS.indexOf(path) >= 0) {
@@ -104,8 +104,8 @@ const xmlNodeToJson = (x, path, rules) => {
       let key = toSnakeCase(c.tagName)
       let currentPath = `${path}/${key}`
       let value = xmlNodeToJson(c, path, rules)
-      if (rules[currentPath] == true) {// it's a list
-        if (obj[key] == null) {
+      if (rules[currentPath] === true) { // it's a list
+        if (obj[key] === undefined) {
           obj[key] = []
         }
         obj[key].push(value)

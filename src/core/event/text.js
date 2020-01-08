@@ -1,19 +1,19 @@
 import processEvents from './event.js'
 
-const EVENT_ID            = 0
-const TIME                = 1
-const LATITUDE            = 2
-const LONGITUDE           = 3
-const DEPTH               = 4
-const AUTHOR              = 5
-const CATALOG             = 6
-const CONSTRIBUTOR        = 7
-const CONSTRIBUTOR_ID     = 8
-const MAG_TYPE            = 9
-const MAGNITUDE           = 10
-const MAG_AUTHOR          = 11
+const EVENT_ID = 0
+const TIME = 1
+const LATITUDE = 2
+const LONGITUDE = 3
+const DEPTH = 4
+const AUTHOR = 5
+// const CATALOG = 6
+// const CONSTRIBUTOR = 7
+// const CONSTRIBUTOR_ID = 8
+const MAG_TYPE = 9
+const MAGNITUDE = 10
+const MAG_AUTHOR = 11
 const EVENT_LOCATION_NAME = 12
-const EVENT_TYPE          = 13
+const EVENT_TYPE = 13
 
 export const parse = text => {
   let lines = text.split('\n')
@@ -39,7 +39,7 @@ export const parse = text => {
         },
         region: splited[EVENT_LOCATION_NAME],
         creation_info: {
-          author: splited[AUTHOR],
+          author: splited[AUTHOR]
         }
       }],
       magnitude: [{

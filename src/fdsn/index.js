@@ -2,7 +2,6 @@ import * as utils from '../utils/index.js'
 import core from '../core/index.js'
 
 export class Client {
-
   constructor (baseURL) {
     this.baseURL = baseURL
   }
@@ -108,5 +107,4 @@ export class Client {
       })
     })
   }
-
 }
