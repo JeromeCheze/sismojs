@@ -363,6 +363,10 @@ export class Stream {
 }
 
 export const read = (arr, finishedCallback, updateCallback) => {
+  finishedCallback(new Stream(new DataView(arr)))
+}
+
+export const readWithWorker = (arr, finishedCallback, updateCallback) => {
   function coreWorker () {
     let lastMessage = null
 

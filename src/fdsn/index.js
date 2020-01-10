@@ -69,7 +69,7 @@ export class Client {
     })
   }
 
-  getWaveforms (params, updateCallback) {
+  getWaveforms (params, updateCallback, useWorker = false) {
     return new Promise((resolve, reject) => {
       utils.ajax({
         method: 'GET',
@@ -77,9 +77,15 @@ export class Client {
         type: 'arraybuffer',
         args: params
       }).then(response => {
-        core.waveform.read(response, st => {
-          resolve(st)
-        }, updateCallback)
+        if (useWorker) {
+          core.waveform.readWithWorker(response, st => {
+            resolve(st)
+          }, updateCallback)
+        } else {
+          core.waveform.read(response, st => {
+            resolve(st)
+          }, updateCallback)
+        }
       }).catch(xhr => {
         throw new Error(xhr.statusText)
       })
