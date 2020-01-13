@@ -25,6 +25,7 @@ export const parse = text => {
     let splited = line.split('|')
     let event = {
       origin: [{
+        public_id: 'origin-0',
         time: {
           value: splited[TIME]
         },
@@ -43,6 +44,7 @@ export const parse = text => {
         }
       }],
       magnitude: [{
+        public_id: 'magnitude-0',
         mag: {
           value: parseFloat(splited[MAGNITUDE])
         },
@@ -52,7 +54,9 @@ export const parse = text => {
         }
       }],
       type: splited[EVENT_TYPE],
-      public_id: splited[EVENT_ID]
+      public_id: splited[EVENT_ID],
+      preferred_origin_id: 'origin-0',
+      preferred_magnitude_id: 'magnitude-0'
     }
     events.push(event)
   }
