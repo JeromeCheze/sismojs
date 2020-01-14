@@ -69,7 +69,7 @@ export class Client {
     })
   }
 
-  getWaveforms (params, updateCallback, useWorker = false) {
+  getWaveforms (params, updateCallback, useWorker = true) {
     return new Promise((resolve, reject) => {
       utils.ajax({
         method: 'GET',
@@ -92,7 +92,7 @@ export class Client {
     })
   }
 
-  getWaveformsBulk (bulk, updateCallback) {
+  getWaveformsBulk (bulk, updateCallback, useWorker = true) {
     return new Promise((resolve, reject) => {
       let data = bulk.map(([net, sta, loc, cha, t1, t2]) => {
         t1 = t1 instanceof Date ? t1.toISOString().slice(0, 19) : t1
@@ -105,9 +105,15 @@ export class Client {
         type: 'arraybuffer',
         data
       }).then(response => {
-        core.waveform.read(response, st => {
-          resolve(st)
-        }, updateCallback)
+        if (useWorker) {
+          core.waveform.readWithWorker(response, st => {
+            resolve(st)
+          }, updateCallback)
+        } else {
+          core.waveform.read(response, st => {
+            resolve(st)
+          }, updateCallback)
+        }
       }).catch(xhr => {
         throw new Error(xhr.statusText)
       })

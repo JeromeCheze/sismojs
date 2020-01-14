@@ -1,6 +1,4 @@
-import workerStr from './worker.js'
-
-export class Trace {
+export default `class Trace {
   constructor ({ id, samplingRate, data, stats, timeseries }) {
     // This define a time tolerance (as a period ratio) for continuous traces
     let TOLERANCE = 0.005
@@ -43,7 +41,7 @@ export class Trace {
       if (nbSamples > 0) {
         let d = new Date()
         d.setTime(this.timeseries[i - 1].endtime)
-        console.log(`${this.stats.id} : Warning: found gap of ${gapLength} seconds (${nbSamples}) | gap begin at ${d.toISOString()}`)
+        console.log(\`\${this.stats.id} : Warning: found gap of \${gapLength} seconds (\${nbSamples}) | gap begin at \${d.toISOString()}\`)
         for (let n = 0; n < nbSamples; n++) {
           data.push(null)
         }
@@ -106,7 +104,7 @@ export class Trace {
   }
 }
 
-export class Stream {
+class Stream {
   constructor (dv, updateFunction) {
     this.ENCODING = [
       'ASCII', 'INT16', 'INT24', 'INT32', 'IEEE', 'IEEE_2', // 0 -> 5
@@ -279,7 +277,7 @@ export class Stream {
     }
     for (let i = 1, l = h.fsdh.npts; i < l; s[i] = s[i - 1] + d[i], i++);
     if (s[s.length - 1] !== ric) {
-      console.log(`Decoding error: last sample computed (${s[s.length - 1]}) does not match RIC (${ric}) (packet index: ${index}), ${h.fsdh.seedId}`)
+      console.log(\`Decoding error: last sample computed (\${s[s.length - 1]}) does not match RIC (\${ric}) (packet index: \${index}), \${h.fsdh.seedId}\`)
     }
     return s
   }
@@ -325,7 +323,7 @@ export class Stream {
           // bloquette 1001 is ignored
           nextBloquette = dv.getUint16(index + nextBloquette + 2, byteorder)
         } else {
-          throw new Error(`Unhandled bloquette type ${blktCode} (packet index : ${index})`)
+          throw new Error(\`Unhandled bloquette type \${blktCode} (packet index : \${index})\`)
         }
       }
       // decode data
@@ -336,11 +334,11 @@ export class Stream {
         case 5: data = this.decodeIEEE64(dv, h, index); break
         case 10: data = this.decodeSteim(1, dv, h, index); break
         case 11: data = this.decodeSteim(2, dv, h, index); break
-        default: throw new Error(`Unsupported encoding "${this.ENCODING[h.blkt1000.encoding]}" (packet index: ${index})`)
+        default: throw new Error(\`Unsupported encoding "\${this.ENCODING[h.blkt1000.encoding]}" (packet index: \${index})\`)
       }
 
       if (data.length !== h.fsdh.npts) {
-        console.log(`${data.length} samples retrieved instead of ${h.fsdh.npts} expected`)
+        console.log(\`\${data.length} samples retrieved instead of \${h.fsdh.npts} expected\`)
       }
       // retrieve trace if exists
       trace = this.getTrace(h.fsdh.seedId)
@@ -363,25 +361,24 @@ export class Stream {
   }
 }
 
-export const read = (arr, finishedCallback, updateCallback) => {
-  finishedCallback(new Stream(new DataView(arr)))
-}
-
-export const readWithWorker = (arr, finishedCallback, updateCallback) => {
-  let blob = new Blob([workerStr])
-  let worker = new Worker(window.URL.createObjectURL(blob))
-
-  worker.onmessage = msg => {
-    if (msg.data.status === 'update' && updateCallback != null) {
-      updateCallback(msg.data.value)
-    } else if (msg.data.status === 'finished') {
-      let st = new Stream()
-      for (let traceOpt of msg.data.value.traces) {
-        st.traces.push(new Trace(traceOpt))
-      }
-      worker.terminate()
-      finishedCallback(st)
-    }
+let lastMessage = null
+const updateFunction = (data) => {
+  let now = new Date().getTime()
+  if (lastMessage == null) {
+    lastMessage = now
   }
-  worker.postMessage({ mseed: arr })
+  if ((now - lastMessage) > 100) {
+    lastMessage = now
+    this.postMessage({ status: 'update', value: data.percent })
+  }
 }
+
+this.onmessage = (msg) => {
+  let result = { traces: [] }
+  let st = new Stream(new DataView(msg.data.mseed), updateFunction)
+  for (let tr of st.traces) {
+    result.traces.push({ stats: tr.stats, timeseries: tr.timeseries })
+  }
+  postMessage({ status: 'finished', value: result })
+  close()
+}`
