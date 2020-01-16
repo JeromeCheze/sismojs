@@ -27,7 +27,7 @@ export const parse = text => {
       origin: [{
         public_id: 'origin-0',
         time: {
-          value: splited[TIME]
+          value: `${splited[TIME]}Z`
         },
         latitude: {
           value: parseFloat(splited[LATITUDE])
