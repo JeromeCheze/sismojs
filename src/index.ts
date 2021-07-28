@@ -1,5 +1,5 @@
-import core from './core/index.js'
-import * as fdsn from './fdsn/index.js'
+import core from './core'
+import * as fdsn from './fdsn'
 
 export default {
   read: core.read,

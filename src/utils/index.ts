@@ -1,4 +1,6 @@
-export const ajax = (opt, xhr) => {
+import { AjaxOpt } from "../types"
+
+export const ajax = (opt: AjaxOpt, xhr?: XMLHttpRequest) => {
   if (xhr == null) {
     xhr = new XMLHttpRequest()
   }

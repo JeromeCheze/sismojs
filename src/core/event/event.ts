@@ -1,4 +1,6 @@
-const toSeedId = (wfid) => {
+import { WaveformId, Event } from '../../types'
+
+const toSeedId = (wfid: WaveformId): string => {
   if (wfid.value) {
     delete wfid.value
   }
@@ -6,7 +8,7 @@ const toSeedId = (wfid) => {
   return [wfid.network_code, wfid.station_code, loc, wfid.channel_code].join('.')
 }
 
-export default function processEvents (e) {
+export default function processEvents (e: Event): Event {
   // e._id = e.public_id.split('/').slice(-1)[0]
   for (let o of e.origin) {
     o.time._value = new Date(Date.parse(o.time.value))
@@ -94,7 +96,7 @@ export default function processEvents (e) {
           console.warn(`Can't find the pick ${a.pick_id} referenced by an arrival, ignoring arrival.`)
           continue
         }
-        a._traveltime = new Date(a._pick.time._value - o.time._value)
+        a._traveltime = new Date(a._pick.time._value.getTime() - o.time._value.getTime())
       }
       for (let a of arrivalToIgnore) {
         o.arrival.splice(o.arrival.indexOf(a), 1)

@@ -1,30 +1,35 @@
-import workerStr from './worker.js'
+import workerStr from './worker'
+import { Bloquette1000, FSDH, MSEEDHeader, TraceConstructorParameters, TraceStats, TraceTimeserie, UpdateFunction } from '../../types'
 
 export class Trace {
-  constructor ({ id, samplingRate, data, stats, timeseries }) {
+  timeseries: TraceTimeserie[];
+  stats: TraceStats;
+  __tolerance: number;
+
+  constructor (opt: TraceConstructorParameters) {
     // This define a time tolerance (as a period ratio) for continuous traces
     let TOLERANCE = 0.005
-    this.timeseries = timeseries != null ? timeseries : []
-    if (stats != null) {
-      this.stats = stats
+    this.timeseries = opt.timeseries != null ? opt.timeseries : []
+    if (opt.stats != null) {
+      this.stats = opt.stats
     } else {
-      let [network, station, location, channel] = id.split('.')
+      let [network, station, location, channel] = opt.id.split('.')
       this.stats = {
-        id,
+        id: opt.id,
         network,
         station,
         location,
         channel,
-        samplingRate,
-        delta: 1.0 / samplingRate,
+        samplingRate: opt.samplingRate,
+        delta: 1.0 / opt.samplingRate,
         npts: 0,
         starttime: null,
         endtime: null
       }
     }
     this.__tolerance = 1e3 * TOLERANCE / this.stats.samplingRate
-    if (data) {
-      for (let currData of data) {
+    if (opt.data) {
+      for (let currData of opt.data) {
         this._addData(currData.starttime, currData.data)
       }
     }
@@ -60,7 +65,7 @@ export class Trace {
     return this
   }
 
-  _addData (starttime, data) {
+  _addData (starttime: number, data: number[]) {
     const endtime = starttime + (data.length / this.stats.samplingRate) * 1e3
     if (this.timeseries.length === 0) {
       this.timeseries.push({ starttime, endtime, data })
@@ -107,7 +112,10 @@ export class Trace {
 }
 
 export class Stream {
-  constructor (dv, updateFunction) {
+  ENCODING: (string | null)[];
+  traces: Trace[];
+
+  constructor (dv?: DataView, updateFunction?: UpdateFunction) {
     this.ENCODING = [
       'ASCII', 'INT16', 'INT24', 'INT32', 'IEEE', 'IEEE_2', // 0 -> 5
       null, null, null, null,
@@ -124,13 +132,13 @@ export class Stream {
     }
   }
 
-  signedInt (value, size) {
+  signedInt (value: number, size: number) {
     const mask = Math.pow(2, size) - 1
     value &= mask
     return value >> (size - 1) ? -1 * (~value & mask) - 1 : value
   }
 
-  dataViewString (dv, offset, len) {
+  dataViewString (dv: DataView, offset: number, len: number) {
     let result = new Array(len)
     for (let i = 0; i < len; i++) {
       result[i] = String.fromCharCode(dv.getUint8(offset + i))
@@ -138,7 +146,7 @@ export class Stream {
     return result.join('')
   }
 
-  getTrace (id) {
+  getTrace (id: string) {
     for (let trace of this.traces) {
       if (trace.stats.id === id) {
         return trace
@@ -146,7 +154,7 @@ export class Stream {
     }
   }
 
-  decodeFSDH (dv, o, byteorder) {
+  decodeFSDH (dv: DataView, o: number, byteorder: boolean): FSDH {
     let tmp = new Date()
     tmp.setTime(Date.UTC(
       dv.getUint16(o + 20, byteorder), // year
@@ -184,7 +192,7 @@ export class Stream {
     }
   }
 
-  decodeBlkt1000 (dv, o, byteorder) {
+  decodeBlkt1000 (dv: DataView, o: number, byteorder: boolean): Bloquette1000 {
     return {
       nextBloquette: dv.getUint16(o + 2, byteorder),
       encoding: dv.getUint8(o + 4),
@@ -193,38 +201,38 @@ export class Stream {
     }
   }
 
-  decodeINT16 (dv, h, index) {
+  decodeINT16 (dv: DataView, h: MSEEDHeader, index: number) {
     let o = index + h.fsdh.dataBegin
     let data = new Array(h.fsdh.npts)
     for (let i = 0; i < h.fsdh.npts; data[i] = dv.getInt16(o + i * 2, h.blkt1000.littleEndian), i++);
     return data
   }
 
-  decodeINT32 (dv, h, index) {
+  decodeINT32 (dv: DataView, h: MSEEDHeader, index: number) {
     let o = index + h.fsdh.dataBegin
     let data = new Array(h.fsdh.npts)
     for (let i = 0; i < h.fsdh.npts; data[i] = dv.getInt32(o + i * 4, h.blkt1000.littleEndian), i++);
     return data
   }
 
-  decodeIEEE32 (dv, h, index) {
+  decodeIEEE32 (dv: DataView, h: MSEEDHeader, index: number) {
     let o = index + h.fsdh.dataBegin
     let data = new Array(h.fsdh.npts)
     for (let i = 0; i < h.fsdh.npts; data[i] = dv.getFloat32(o + i * 4, h.blkt1000.littleEndian), i++);
     return data
   }
 
-  decodeIEEE64 (dv, h, index) {
+  decodeIEEE64 (dv: DataView, h: MSEEDHeader, index: number) {
     let o = index + h.fsdh.dataBegin
     let data = new Array(h.fsdh.npts)
     for (let i = 0; i < h.fsdh.npts; data[i] = dv.getFloat64(o + i * 8, h.blkt1000.littleEndian), i++);
     return data
   }
 
-  decodeSteim (v, dv, h, index) {
+  decodeSteim (v: number, dv: DataView, h: MSEEDHeader, index: number) {
     let o = index + h.fsdh.dataBegin
     let nbFrame = (h.blkt1000.packetSize - h.fsdh.dataBegin) / 64
-    let fi, w0, shift, fic, ric, wi, nib, dnib
+    let fi: number, w0: number, shift: number, fic: number, ric: number, wi: number, nib: number, dnib: number
     let dc = 0 // dc for "diff count"
     let d = new Array(h.fsdh.npts)
     let s = new Array(h.fsdh.npts)
@@ -289,23 +297,23 @@ export class Stream {
     return this
   }
 
-  _isYearDayValid (dv, index) {
+  _isYearDayValid (dv: DataView, index: number) {
     let year = dv.getUint16(index + 20)
     let julday = dv.getUint16(index + 22)
     return year >= 1900 && year <= 2100 && julday >= 1 && julday <= 366
   }
 
-  parseMSEED (dv, updateFunction) {
+  parseMSEED (dv: DataView, updateFunction: UpdateFunction) {
     let index = 0
     // let packetCount = 0
-    let data
-    let trace
+    let data: number[]
+    let trace: Trace
     while (index < dv.byteLength) {
       if (updateFunction !== undefined) {
         updateFunction({ percent: 100 * (index / dv.byteLength) })
       }
-      let byteorder
-      let h = {} // object that contains fsdh and all bloquettes
+      let byteorder: boolean
+      let h: MSEEDHeader = {} // object that contains fsdh and all bloquettes
       // decode Fixed Section of Data Header
       if (this._isYearDayValid(dv, index)) {
         byteorder = false // set the byteorder to big endian
@@ -363,11 +371,19 @@ export class Stream {
   }
 }
 
-export const read = (arr, finishedCallback, updateCallback) => {
+export const read = (
+  arr: ArrayBuffer,
+  finishedCallback: (st: Stream) => void,
+  updateCallback: (p: number) => void
+) => {
   finishedCallback(new Stream(new DataView(arr)))
 }
 
-export const readWithWorker = (arr, finishedCallback, updateCallback) => {
+export const readWithWorker = (
+  arr: ArrayBuffer,
+  finishedCallback: (st: Stream) => void,
+  updateCallback: (p: number) => void
+) => {
   let blob = new Blob([workerStr])
   let worker = new Worker(window.URL.createObjectURL(blob))
 

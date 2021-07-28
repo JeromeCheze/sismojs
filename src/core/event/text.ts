@@ -1,4 +1,5 @@
-import processEvents from './event.js'
+import processEvents from './event'
+import { Event } from '../../types'
 
 const EVENT_ID = 0
 const TIME = 1
@@ -15,15 +16,15 @@ const MAG_AUTHOR = 11
 const EVENT_LOCATION_NAME = 12
 const EVENT_TYPE = 13
 
-export const parse = text => {
-  let lines = text.split('\n')
-  let events = []
+export const parse = (text: string): Event[] => {
+  const lines = text.split('\n')
+  const events: Event[] = []
   for (let line of lines.slice(1)) {
     if (line === '') {
       continue
     }
-    let splited = line.split('|')
-    let event = {
+    const splited = line.split('|')
+    const event: Event = {
       origin: [{
         public_id: 'origin-0',
         time: {

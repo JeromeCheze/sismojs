@@ -1,6 +1,6 @@
-import event from './event/index.js'
-import station from './station/index.js'
-import * as waveform from './waveform/index.js'
+import event from './event'
+import station from './station'
+import * as waveform from './waveform'
 
 export default {
   read: waveform.read,

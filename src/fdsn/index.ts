@@ -1,13 +1,16 @@
-import * as utils from '../utils/index.js'
-import core from '../core/index.js'
+import * as utils from '../utils'
+import core from '../core'
+import { FDSNEventParams, FDSNStationBulkItem, FDSNStationParams, FDSNWaveformBulkItem, FDSNWaveformParams } from '../types/index.js';
 
 export class Client {
+  baseURL: string;
+
   constructor (baseURL) {
     this.baseURL = baseURL
   }
 
-  getEvents (params) {
-    return new Promise((resolve, reject) => {
+  getEvents (params: FDSNEventParams) {
+    return new Promise((resolve) => {
       let driver = null
       if (params.format === undefined || params.format === 'xml') {
         driver = core.event.quakeml
@@ -29,11 +32,11 @@ export class Client {
     })
   }
 
-  getStations (params) {
+  getStations (params: FDSNStationParams) {
     if (params.format !== 'text') {
       throw new Error('The only supported format is "text"')
     }
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       let driver = core.station.text
       utils.ajax({
         method: 'GET',
@@ -41,15 +44,15 @@ export class Client {
         type: params.format,
         args: params
       }).then(response => {
-        resolve(driver.parse(response))
+        resolve(driver.parse(<string>response))
       }).catch(xhr => {
         throw new Error(xhr.statusText)
       })
     })
   }
 
-  getStationsBulk (bulk) {
-    return new Promise((resolve, reject) => {
+  getStationsBulk (bulk: FDSNStationBulkItem[]) {
+    return new Promise((resolve) => {
       let driver = core.station.text
       let data = ['format=text', 'level=channel'].concat(bulk.map(([net, sta, loc, cha, t1, t2]) => {
         t1 = t1 instanceof Date ? t1.toISOString().slice(0, 19) : t1
@@ -62,14 +65,18 @@ export class Client {
         type: 'text',
         data
       }).then(response => {
-        resolve(driver.parse(response))
+        resolve(driver.parse(<string>response))
       }).catch(xhr => {
         throw new Error(xhr.statusText)
       })
     })
   }
 
-  getWaveforms (params, updateCallback, useWorker = true) {
+  getWaveforms (
+    params: FDSNWaveformParams,
+    updateCallback: (progression: number) => void,
+    useWorker = true
+  ) {
     return new Promise((resolve, reject) => {
       utils.ajax({
         method: 'GET',
@@ -78,11 +85,11 @@ export class Client {
         args: params
       }).then(response => {
         if (useWorker) {
-          core.waveform.readWithWorker(response, st => {
+          core.waveform.readWithWorker(<ArrayBuffer>response, st => {
             resolve(st)
           }, updateCallback)
         } else {
-          core.waveform.read(response, st => {
+          core.waveform.read(<ArrayBuffer>response, st => {
             resolve(st)
           }, updateCallback)
         }
@@ -92,7 +99,11 @@ export class Client {
     })
   }
 
-  getWaveformsBulk (bulk, updateCallback, useWorker = true) {
+  getWaveformsBulk (
+    bulk: FDSNWaveformBulkItem[],
+    updateCallback: (progression: number) => void,
+    useWorker = true
+  ) {
     return new Promise((resolve, reject) => {
       let data = bulk.map(([net, sta, loc, cha, t1, t2]) => {
         t1 = t1 instanceof Date ? t1.toISOString().slice(0, 19) : t1
@@ -106,11 +117,11 @@ export class Client {
         data
       }).then(response => {
         if (useWorker) {
-          core.waveform.readWithWorker(response, st => {
+          core.waveform.readWithWorker(<ArrayBuffer>response, st => {
             resolve(st)
           }, updateCallback)
         } else {
-          core.waveform.read(response, st => {
+          core.waveform.read(<ArrayBuffer>response, st => {
             resolve(st)
           }, updateCallback)
         }
