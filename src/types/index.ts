@@ -89,15 +89,15 @@ export type EventDescription = {
   text: string;
 }
 
-export type Event = {
+export type EventParameter = {
   public_id: string;
   origin: Origin[];
   magnitude: Magnitude[];
   amplitude?: Amplitude[];
   station_magnitude?: StationMagnitude[];
   type: string;
-  preferred_origin_id: string;
-  preferred_magnitude_id: string;
+  preferred_origin_id?: string | null;
+  preferred_magnitude_id?: string | null;
   _region?: string;
   description?: EventDescription[];
   _po?: Origin;
@@ -107,13 +107,13 @@ export type Event = {
 
 export type ConversionRules = {
   nodeList: string[];
-  conversion: Record<string, (x: string) => any>;
+  conversion: Record<string, undefined | ((x: string) => any)>;
 }
 
 export type AjaxOpt = {
   method: string;
   url: string;
-  type?: XMLHttpRequestResponseType;
+  type: XMLHttpRequestResponseType;
   args?: string | Record<string, any>;
   dataMimeType?: string;
   data?: string;
@@ -145,12 +145,12 @@ export type FDSNWaveformParams = {
 export type TraceTimeserie = {
   starttime: number;
   endtime: number;
-  data: number[];
+  data: (number | null)[];
 }
 
 export type TraceData = {
   starttime: number;
-  data: number[];
+  data: (number | null)[];
 }
 
 export type TraceStats = {
@@ -162,8 +162,8 @@ export type TraceStats = {
   samplingRate: number;
   delta: number;
   npts: number;
-  starttime: number;
-  endtime: number;
+  starttime: number | null;
+  endtime: number | null;
 }
 
 export type FSDH = {
@@ -187,6 +187,11 @@ export type MSEEDHeader = {
   blkt1000?: Bloquette1000;
 }
 
+export type MSEEDHeaderStrict = {
+  fsdh: FSDH;
+  blkt1000: Bloquette1000;
+}
+
 export type UpdateParameters = {
   percent: number
 }
@@ -199,4 +204,29 @@ export type TraceConstructorParameters = {
   data?: TraceData[];
   stats?: TraceStats;
   timeseries?: TraceTimeserie[];
+}
+
+export type Channel = {
+  azimuth: number;
+  dip: number;
+  scale: number;
+  depth: number;
+  starttime: Date;
+  endtime: Date;
+  sample_rate: number;
+  units: string;
+}
+export type ChannelMap = Record<string, Channel[]>
+export type LocationMap = Record<string, ChannelMap>
+export type Station = {
+  lat: number;
+  lon: number;
+  alt: number;
+  location: LocationMap;
+}
+export type StationMap = Record<string, Station>
+export type Inventory = Record<string, StationMap>
+
+export type EventDriver = {
+  parse: (input: any) => EventParameter[];
 }

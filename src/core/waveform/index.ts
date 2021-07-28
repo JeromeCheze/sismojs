@@ -1,5 +1,5 @@
 import workerStr from './worker'
-import { Bloquette1000, FSDH, MSEEDHeader, TraceConstructorParameters, TraceStats, TraceTimeserie, UpdateFunction } from '../../types'
+import { Bloquette1000, FSDH, MSEEDHeader, MSEEDHeaderStrict, TraceConstructorParameters, TraceStats, TraceTimeserie, UpdateFunction } from '../../types'
 
 export class Trace {
   timeseries: TraceTimeserie[];
@@ -13,6 +13,9 @@ export class Trace {
     if (opt.stats != null) {
       this.stats = opt.stats
     } else {
+      if (opt.id == null || opt.samplingRate == null) {
+        throw new Error('id and samplingRate parameters must be specified')
+      }
       let [network, station, location, channel] = opt.id.split('.')
       this.stats = {
         id: opt.id,
@@ -65,7 +68,7 @@ export class Trace {
     return this
   }
 
-  _addData (starttime: number, data: number[]) {
+  _addData (starttime: number, data: (number | null)[]) {
     const endtime = starttime + (data.length / this.stats.samplingRate) * 1e3
     if (this.timeseries.length === 0) {
       this.timeseries.push({ starttime, endtime, data })
@@ -101,10 +104,10 @@ export class Trace {
   }
 
   getOffset () {
-    let allData = []
+    let allData: number[] = []
     let nbSamples = 0
     for (let timeserie of this.timeseries) {
-      allData = allData.concat(timeserie.data)
+      allData = allData.concat(<number[]>timeserie.data.filter(x => x != null))
       nbSamples += timeserie.data.length
     }
     return Math.floor(allData.reduce((x, y) => x + y) / nbSamples)
@@ -201,38 +204,39 @@ export class Stream {
     }
   }
 
-  decodeINT16 (dv: DataView, h: MSEEDHeader, index: number) {
+  decodeINT16 (dv: DataView, h: MSEEDHeaderStrict, index: number) {
     let o = index + h.fsdh.dataBegin
     let data = new Array(h.fsdh.npts)
     for (let i = 0; i < h.fsdh.npts; data[i] = dv.getInt16(o + i * 2, h.blkt1000.littleEndian), i++);
     return data
   }
 
-  decodeINT32 (dv: DataView, h: MSEEDHeader, index: number) {
+  decodeINT32 (dv: DataView, h: MSEEDHeaderStrict, index: number) {
     let o = index + h.fsdh.dataBegin
     let data = new Array(h.fsdh.npts)
     for (let i = 0; i < h.fsdh.npts; data[i] = dv.getInt32(o + i * 4, h.blkt1000.littleEndian), i++);
     return data
   }
 
-  decodeIEEE32 (dv: DataView, h: MSEEDHeader, index: number) {
+  decodeIEEE32 (dv: DataView, h: MSEEDHeaderStrict, index: number) {
     let o = index + h.fsdh.dataBegin
     let data = new Array(h.fsdh.npts)
     for (let i = 0; i < h.fsdh.npts; data[i] = dv.getFloat32(o + i * 4, h.blkt1000.littleEndian), i++);
     return data
   }
 
-  decodeIEEE64 (dv: DataView, h: MSEEDHeader, index: number) {
+  decodeIEEE64 (dv: DataView, h: MSEEDHeaderStrict, index: number) {
     let o = index + h.fsdh.dataBegin
     let data = new Array(h.fsdh.npts)
     for (let i = 0; i < h.fsdh.npts; data[i] = dv.getFloat64(o + i * 8, h.blkt1000.littleEndian), i++);
     return data
   }
 
-  decodeSteim (v: number, dv: DataView, h: MSEEDHeader, index: number) {
+  decodeSteim (v: number, dv: DataView, h: MSEEDHeaderStrict, index: number) {
     let o = index + h.fsdh.dataBegin
     let nbFrame = (h.blkt1000.packetSize - h.fsdh.dataBegin) / 64
-    let fi: number, w0: number, shift: number, fic: number, ric: number, wi: number, nib: number, dnib: number
+    let fi: number, w0: number, shift: number, fic: number, wi: number, nib: number, dnib: number
+    let ric: (null | number) = null
     let dc = 0 // dc for "diff count"
     let d = new Array(h.fsdh.npts)
     let s = new Array(h.fsdh.npts)
@@ -303,17 +307,17 @@ export class Stream {
     return year >= 1900 && year <= 2100 && julday >= 1 && julday <= 366
   }
 
-  parseMSEED (dv: DataView, updateFunction: UpdateFunction) {
+  parseMSEED (dv: DataView, updateFunction?: UpdateFunction) {
     let index = 0
     // let packetCount = 0
     let data: number[]
-    let trace: Trace
+    let trace: (Trace | undefined)
     while (index < dv.byteLength) {
       if (updateFunction !== undefined) {
         updateFunction({ percent: 100 * (index / dv.byteLength) })
       }
       let byteorder: boolean
-      let h: MSEEDHeader = {} // object that contains fsdh and all bloquettes
+      const h: (MSEEDHeader | MSEEDHeaderStrict) = {} // object that contains fsdh and all bloquettes
       // decode Fixed Section of Data Header
       if (this._isYearDayValid(dv, index)) {
         byteorder = false // set the byteorder to big endian
@@ -336,34 +340,35 @@ export class Stream {
           throw new Error(`Unhandled bloquette type ${blktCode} (packet index : ${index})`)
         }
       }
+      const hs = <MSEEDHeaderStrict>h
       // decode data
-      switch (h.blkt1000.encoding) {
-        case 1: data = this.decodeINT16(dv, h, index); break
-        case 3: data = this.decodeINT32(dv, h, index); break
-        case 4: data = this.decodeIEEE32(dv, h, index); break
-        case 5: data = this.decodeIEEE64(dv, h, index); break
-        case 10: data = this.decodeSteim(1, dv, h, index); break
-        case 11: data = this.decodeSteim(2, dv, h, index); break
-        default: throw new Error(`Unsupported encoding "${this.ENCODING[h.blkt1000.encoding]}" (packet index: ${index})`)
+      switch (hs.blkt1000.encoding) {
+        case 1: data = this.decodeINT16(dv, hs, index); break
+        case 3: data = this.decodeINT32(dv, hs, index); break
+        case 4: data = this.decodeIEEE32(dv, hs, index); break
+        case 5: data = this.decodeIEEE64(dv, hs, index); break
+        case 10: data = this.decodeSteim(1, dv, hs, index); break
+        case 11: data = this.decodeSteim(2, dv, hs, index); break
+        default: throw new Error(`Unsupported encoding "${this.ENCODING[hs.blkt1000.encoding]}" (packet index: ${index})`)
       }
 
-      if (data.length !== h.fsdh.npts) {
-        console.log(`${data.length} samples retrieved instead of ${h.fsdh.npts} expected`)
+      if (data.length !== hs.fsdh.npts) {
+        console.log(`${data.length} samples retrieved instead of ${hs.fsdh.npts} expected`)
       }
       // retrieve trace if exists
-      trace = this.getTrace(h.fsdh.seedId)
+      trace = this.getTrace(hs.fsdh.seedId)
       if (trace) {
         // add data to the existing Trace
-        trace._addData(h.fsdh.starttime, data)
+        trace._addData(hs.fsdh.starttime, data)
       } else {
         // create a new Trace
         this.traces.push(new Trace({
-          id: h.fsdh.seedId,
-          samplingRate: h.fsdh.samplingRate,
-          data: [{ starttime: h.fsdh.starttime, data }]
+          id: hs.fsdh.seedId,
+          samplingRate: hs.fsdh.samplingRate,
+          data: [{ starttime: hs.fsdh.starttime, data }]
         }))
       }
-      index += h.blkt1000.packetSize
+      index += hs.blkt1000.packetSize
       // packetCount++
     }
     this._sortTrace()

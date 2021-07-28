@@ -1,4 +1,4 @@
-import { WaveformId, Event } from '../../types'
+import { WaveformId, EventParameter, Pick } from '../../types'
 
 const toSeedId = (wfid: WaveformId): string => {
   if (wfid.value) {
@@ -8,7 +8,7 @@ const toSeedId = (wfid: WaveformId): string => {
   return [wfid.network_code, wfid.station_code, loc, wfid.channel_code].join('.')
 }
 
-export default function processEvents (e: Event): Event {
+export default function processEvents (e: EventParameter): EventParameter {
   // e._id = e.public_id.split('/').slice(-1)[0]
   for (let o of e.origin) {
     o.time._value = new Date(Date.parse(o.time.value))
@@ -45,7 +45,7 @@ export default function processEvents (e: Event): Event {
       if (e.station_magnitude != null && m.station_magnitude_contribution != null) {
         for (let smc of m.station_magnitude_contribution) {
           smc._station_magnitude = e.station_magnitude.find(x => x.public_id === smc.station_magnitude_id)
-          if (smc.residual == null) {
+          if (smc.residual == null && smc._station_magnitude != null) {
             smc.residual = smc._station_magnitude.mag.value - m.mag.value
           }
           smc._pretty_residual = smc.residual != null ? smc.residual.toFixed(2) : '-'
@@ -57,7 +57,7 @@ export default function processEvents (e: Event): Event {
     e.magnitude = []
   }
   e._po = e.preferred_origin_id ? e.origin.find(x => x.public_id === e.preferred_origin_id) : e.origin[0]
-  if (e._po.region) {
+  if (e._po != null && e._po.region) {
     e._region = e._po.region
   } else if (e.description) {
     e._region = e.description[0].text
@@ -70,8 +70,8 @@ export default function processEvents (e: Event): Event {
   } else {
     e.preferred_magnitude_id = null
   }
-  if (e.pick != null && e._po.arrival != null) {
-    let pickMap = {}
+  if (e.pick != null && e._po != null && e._po.arrival != null) {
+    let pickMap: Record<string, Pick> = {}
     for (let p of e.pick) {
       p.time._value = new Date(Date.parse(p.time.value))
       // p._id = p.public_id.split('/').slice(-1)[0]
@@ -83,23 +83,29 @@ export default function processEvents (e: Event): Event {
     }
     for (let o of e.origin) {
       let arrivalToIgnore = []
-      for (let a of o.arrival) {
-        if (a.public_id) {
-          delete a.public_id
+      if (o.arrival != null) {
+        for (let a of o.arrival) {
+          if (a.public_id) {
+            delete a.public_id
+          }
+          // a._pick_id = a.pick_id.split('/').slice(-1)[0]
+          // a._pick = pickMap[a._pick_id]
+          a.time_weight = a.time_weight == null ? 0 : a.time_weight
+          a._pick = pickMap[a.pick_id]
+          if (a._pick == null) {
+            arrivalToIgnore.push(a)
+            console.warn(`Can't find the pick ${a.pick_id} referenced by an arrival, ignoring arrival.`)
+            continue
+          }
+          if (a._pick != null && a._pick.time._value != null && o.time._value != null) {
+            a._traveltime = new Date(a._pick.time._value.getTime() - o.time._value.getTime())
+          }
         }
-        // a._pick_id = a.pick_id.split('/').slice(-1)[0]
-        // a._pick = pickMap[a._pick_id]
-        a.time_weight = a.time_weight == null ? 0 : a.time_weight
-        a._pick = pickMap[a.pick_id]
-        if (a._pick == null) {
-          arrivalToIgnore.push(a)
-          console.warn(`Can't find the pick ${a.pick_id} referenced by an arrival, ignoring arrival.`)
-          continue
-        }
-        a._traveltime = new Date(a._pick.time._value.getTime() - o.time._value.getTime())
       }
-      for (let a of arrivalToIgnore) {
-        o.arrival.splice(o.arrival.indexOf(a), 1)
+      if (o.arrival != null) {
+        for (let a of arrivalToIgnore) {
+          o.arrival.splice(o.arrival.indexOf(a), 1)
+        }
       }
     }
   }

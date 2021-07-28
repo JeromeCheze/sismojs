@@ -1,5 +1,5 @@
 import processEvents from './event'
-import { ConversionRules, Event } from '../../types'
+import { ConversionRules, EventParameter } from '../../types'
 
 const CONVERSION_RULES: ConversionRules = {
   nodeList: [
@@ -85,7 +85,7 @@ const removeResourcePrefix = (id: string) => {
 
 const xmlNodeToJson = (x: Element, path: string, rules: ConversionRules) => {
   path = `${path}/${toSnakeCase(x.tagName)}`
-  let obj = {}
+  let obj: Record<string, any> = {}
   for (let a of x.attributes) {
     let key = toSnakeCase(a.name)
     let currentPath = `${path}/${key}`
@@ -102,7 +102,7 @@ const xmlNodeToJson = (x: Element, path: string, rules: ConversionRules) => {
       conv = removeResourcePrefix
     }
     // console.log(path, conv);
-    let value = conv ? conv(x.textContent) : x.textContent
+    let value = conv && x.textContent != null ? conv(x.textContent) : x.textContent
     return Object.keys(obj).length > 0 ? Object.assign(obj, { value }) : value
   } else {
     for (let c of x.children) {
@@ -128,5 +128,5 @@ export const parse = (qml: XMLDocument) => {
     '',
     CONVERSION_RULES
   ).event
-  return events.map((e: Event) => processEvents(e))
+  return events.map((e: EventParameter) => processEvents(e))
 }

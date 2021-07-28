@@ -1,3 +1,5 @@
+import { Inventory } from '../../types'
+
 const NETWORK = 0
 const STATION = 1
 const LOCATION = 2
@@ -15,7 +17,7 @@ const STARTTIME = 15
 const ENDTIME = 16
 
 export const parse = (text: string) => {
-  let result = {}
+  let result: Inventory = {}
   let spInv = text.split(/[\r\n]+/g)
   for (let l of spInv) {
     if (l !== '' && l[0] !== '#') {

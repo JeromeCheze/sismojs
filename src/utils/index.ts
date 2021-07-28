@@ -1,9 +1,6 @@
-import { AjaxOpt } from "../types"
+import { AjaxOpt } from '../types'
 
-export const ajax = (opt: AjaxOpt, xhr?: XMLHttpRequest) => {
-  if (xhr == null) {
-    xhr = new XMLHttpRequest()
-  }
+export const ajax = (opt: AjaxOpt, xhr = new XMLHttpRequest()) => {
   return new Promise((resolve, reject) => {
     opt = Object.assign({
       method: 'GET', url: null, type: 'text', args: null, data: null, dataMimeType: null
@@ -25,7 +22,7 @@ export const ajax = (opt: AjaxOpt, xhr?: XMLHttpRequest) => {
         reject(xhr)
       }
     }
-    if (opt.method === 'POST' && opt.dataMimeType !== null) {
+    if (opt.method === 'POST' && opt.dataMimeType != null) {
       xhr.setRequestHeader('Content-Type', opt.dataMimeType)
     }
     xhr.send(opt.data)

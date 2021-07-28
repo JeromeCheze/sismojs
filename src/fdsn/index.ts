@@ -1,17 +1,17 @@
 import * as utils from '../utils'
 import core from '../core'
-import { FDSNEventParams, FDSNStationBulkItem, FDSNStationParams, FDSNWaveformBulkItem, FDSNWaveformParams } from '../types/index.js';
+import { EventDriver, FDSNEventParams, FDSNStationBulkItem, FDSNStationParams, FDSNWaveformBulkItem, FDSNWaveformParams } from '../types/index.js'
 
 export class Client {
   baseURL: string;
 
-  constructor (baseURL) {
+  constructor (baseURL: string) {
     this.baseURL = baseURL
   }
 
   getEvents (params: FDSNEventParams) {
     return new Promise((resolve) => {
-      let driver = null
+      let driver: EventDriver | null = null
       if (params.format === undefined || params.format === 'xml') {
         driver = core.event.quakeml
       } else if (params.format === 'text') {
@@ -25,7 +25,9 @@ export class Client {
         type: params.format === 'text' ? 'text' : 'document',
         args: params
       }).then(response => {
-        resolve(driver.parse(response))
+        if (driver != null) {
+          resolve(driver.parse(response))
+        }
       }).catch(xhr => {
         throw new Error(xhr.statusText)
       })
