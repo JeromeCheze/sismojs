@@ -4,46 +4,46 @@ const toSeedId = (wfid: WaveformId): string => {
   if (wfid.value) {
     delete wfid.value
   }
-  let loc = wfid.location_code == null ? '' : wfid.location_code
+  const loc = wfid.location_code == null ? '' : wfid.location_code
   return [wfid.network_code, wfid.station_code, loc, wfid.channel_code].join('.')
 }
 
 export default function processEvents (e: EventParameter): EventParameter {
   // e._id = e.public_id.split('/').slice(-1)[0]
-  for (let o of e.origin) {
+  for (const o of e.origin) {
     o.time._value = new Date(Date.parse(o.time.value))
     o.time._pretty = o.time._value.toISOString().replace('T', ' ').substr(0, 19)
-    if (o.creation_info.creation_time) {
+    if (o.creation_info != null && o.creation_info.creation_time) {
       o.creation_info._creation_time = new Date(Date.parse(o.creation_info.creation_time))
       o.creation_info._pretty_creation_time = o.creation_info._creation_time.toISOString().replace('T', ' ').substr(0, 19)
     }
-    let [lat, lon] = [o.latitude.value, o.longitude.value]
+    const [lat, lon] = [o.latitude.value, o.longitude.value]
     o.latitude._pretty = lat > 0 ? `${lat.toFixed(2)}° N` : `${(-1 * lat).toFixed(2)}° S`
     o.latitude._pretty_uncertainty = o.latitude.uncertainty != null ? `+/- ${(o.latitude.uncertainty).toFixed(1)} km` : ''
     o.longitude._pretty = lon > 0 ? `${lon.toFixed(2)}° E` : `${(-1 * lon).toFixed(2)}° W`
     o.longitude._pretty_uncertainty = o.longitude.uncertainty != null ? `+/- ${(o.longitude.uncertainty).toFixed(1)} km` : ''
     o.depth._pretty = `${(o.depth.value / 1000).toFixed(0)} km`
-    o.depth._pretty_uncertainty = o.depth.uncertainty != null ? `+/- ${(o.depth.uncertainty / 1000).toFixed(1)} km` : '(fixed)'
+    o.depth._pretty_uncertainty = o.depth.uncertainty != null ? `+/- ${(o.depth.uncertainty / 1000).toFixed(1)} km` : 'fixed'
   }
   if (e.amplitude != null && e.station_magnitude != null) {
-    for (let a of e.amplitude) {
+    for (const a of e.amplitude) {
       a._seedid = toSeedId(a.waveform_id)
     }
-    for (let sm of e.station_magnitude) {
+    for (const sm of e.station_magnitude) {
       sm._amplitude = e.amplitude.find(x => x.public_id === sm.amplitude_id)
       sm.mag._pretty = sm.mag.value.toFixed(2)
       sm._seedid = toSeedId(sm.waveform_id)
     }
   }
   if (e.magnitude != null) {
-    for (let m of e.magnitude) {
+    for (const m of e.magnitude) {
       m.mag._pretty = m.mag.value.toFixed(2)
-      if (m.creation_info.creation_time) {
+      if (m.creation_info != null && m.creation_info.creation_time) {
         m.creation_info._creation_time = new Date(Date.parse(m.creation_info.creation_time))
         m.creation_info._pretty_creation_time = m.creation_info._creation_time.toISOString().replace('T', ' ').substr(0, 19)
       }
       if (e.station_magnitude != null && m.station_magnitude_contribution != null) {
-        for (let smc of m.station_magnitude_contribution) {
+        for (const smc of m.station_magnitude_contribution) {
           smc._station_magnitude = e.station_magnitude.find(x => x.public_id === smc.station_magnitude_id)
           if (smc.residual == null && smc._station_magnitude != null) {
             smc.residual = smc._station_magnitude.mag.value - m.mag.value
@@ -71,20 +71,20 @@ export default function processEvents (e: EventParameter): EventParameter {
     e.preferred_magnitude_id = null
   }
   if (e.pick != null && e._po != null && e._po.arrival != null) {
-    let pickMap: Record<string, Pick> = {}
-    for (let p of e.pick) {
+    const pickMap: Record<string, Pick> = {}
+    for (const p of e.pick) {
       p.time._value = new Date(Date.parse(p.time.value))
       // p._id = p.public_id.split('/').slice(-1)[0]
-      let wfid = p.waveform_id
+      const wfid = p.waveform_id
       p._seedid = toSeedId(wfid)
       p._fdsnid = p._seedid.replace('..', '.--.')
       // pickMap[p._id] = p
       pickMap[p.public_id] = p
     }
-    for (let o of e.origin) {
-      let arrivalToIgnore = []
+    for (const o of e.origin) {
+      const arrivalToIgnore = []
       if (o.arrival != null) {
-        for (let a of o.arrival) {
+        for (const a of o.arrival) {
           if (a.public_id) {
             delete a.public_id
           }
@@ -103,7 +103,7 @@ export default function processEvents (e: EventParameter): EventParameter {
         }
       }
       if (o.arrival != null) {
-        for (let a of arrivalToIgnore) {
+        for (const a of arrivalToIgnore) {
           o.arrival.splice(o.arrival.indexOf(a), 1)
         }
       }

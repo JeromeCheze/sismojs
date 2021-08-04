@@ -17,9 +17,9 @@ const STARTTIME = 15
 const ENDTIME = 16
 
 export const parse = (text: string) => {
-  let result: Inventory = {}
-  let spInv = text.split(/[\r\n]+/g)
-  for (let l of spInv) {
+  const result: Inventory = {}
+  const spInv = text.split(/[\r\n]+/g)
+  for (const l of spInv) {
     if (l !== '' && l[0] !== '#') {
       const spLine = l.split('|')
       const [net, sta, loc, cha] = [spLine[NETWORK], spLine[STATION], spLine[LOCATION], spLine[CHANNEL]]

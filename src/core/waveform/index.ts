@@ -8,7 +8,7 @@ export class Trace {
 
   constructor (opt: TraceConstructorParameters) {
     // This define a time tolerance (as a period ratio) for continuous traces
-    let TOLERANCE = 0.005
+    const TOLERANCE = 0.005
     this.timeseries = opt.timeseries != null ? opt.timeseries : []
     if (opt.stats != null) {
       this.stats = opt.stats
@@ -16,7 +16,7 @@ export class Trace {
       if (opt.id == null || opt.samplingRate == null) {
         throw new Error('id and samplingRate parameters must be specified')
       }
-      let [network, station, location, channel] = opt.id.split('.')
+      const [network, station, location, channel] = opt.id.split('.')
       this.stats = {
         id: opt.id,
         network,
@@ -32,7 +32,7 @@ export class Trace {
     }
     this.__tolerance = 1e3 * TOLERANCE / this.stats.samplingRate
     if (opt.data) {
-      for (let currData of opt.data) {
+      for (const currData of opt.data) {
         this._addData(currData.starttime, currData.data)
       }
     }
@@ -49,7 +49,7 @@ export class Trace {
       const gapLength = (this.timeseries[i].starttime - this.timeseries[i - 1].endtime) / 1e3
       const nbSamples = Math.floor(gapLength * this.stats.samplingRate)
       if (nbSamples > 0) {
-        let d = new Date()
+        const d = new Date()
         d.setTime(this.timeseries[i - 1].endtime)
         console.log(`${this.stats.id} : Warning: found gap of ${gapLength} seconds (${nbSamples}) | gap begin at ${d.toISOString()}`)
         for (let n = 0; n < nbSamples; n++) {
@@ -77,7 +77,7 @@ export class Trace {
       return this._updateStats()
     }
     // try to merge data to an existing timeseries
-    for (let timeserie of this.timeseries) {
+    for (const timeserie of this.timeseries) {
       if (Math.abs(timeserie.endtime - starttime) < this.__tolerance) {
         // put data at the end of the timeserie
         timeserie.data = timeserie.data.concat(data)
@@ -91,7 +91,7 @@ export class Trace {
       }
     }
     // merge failed : create new timeseries at the right place
-    for (let [i, timeserie] of this.timeseries.entries()) {
+    for (const [i, timeserie] of this.timeseries.entries()) {
       if (starttime < timeserie.starttime) {
         // create timeserie before
         this.timeseries.splice(i, 0, { starttime, endtime, data })
@@ -106,7 +106,7 @@ export class Trace {
   getOffset () {
     let allData: number[] = []
     let nbSamples = 0
-    for (let timeserie of this.timeseries) {
+    for (const timeserie of this.timeseries) {
       allData = allData.concat(<number[]>timeserie.data.filter(x => x != null))
       nbSamples += timeserie.data.length
     }
@@ -142,7 +142,7 @@ export class Stream {
   }
 
   dataViewString (dv: DataView, offset: number, len: number) {
-    let result = new Array(len)
+    const result = new Array(len)
     for (let i = 0; i < len; i++) {
       result[i] = String.fromCharCode(dv.getUint8(offset + i))
     }
@@ -150,7 +150,7 @@ export class Stream {
   }
 
   getTrace (id: string) {
-    for (let trace of this.traces) {
+    for (const trace of this.traces) {
       if (trace.stats.id === id) {
         return trace
       }
@@ -158,7 +158,7 @@ export class Stream {
   }
 
   decodeFSDH (dv: DataView, o: number, byteorder: boolean): FSDH {
-    let tmp = new Date()
+    const tmp = new Date()
     tmp.setTime(Date.UTC(
       dv.getUint16(o + 20, byteorder), // year
       0, // january
@@ -169,14 +169,14 @@ export class Stream {
     ))
     tmp.setUTCDate(dv.getUint16(o + 22, byteorder)) // set month and date
     let starttime = tmp.getTime() + dv.getUint16(o + 28, byteorder) / 10 // add 10e-1 milliseconds
-    let net = this.dataViewString(dv, o + 18, 2).trim()
-    let sta = this.dataViewString(dv, o + 8, 5).trim()
-    let loc = this.dataViewString(dv, o + 13, 2).trim()
-    let cha = this.dataViewString(dv, o + 15, 3)
-    let srF = dv.getInt16(o + 32, byteorder) // sample rate factor
-    let srM = dv.getInt16(o + 34, byteorder) // sample rate multiplier
-    let actFlags = dv.getUint8(o + 36) // activity flags
-    let tCorr = dv.getInt32(o + 40, byteorder) / 10
+    const net = this.dataViewString(dv, o + 18, 2).trim()
+    const sta = this.dataViewString(dv, o + 8, 5).trim()
+    const loc = this.dataViewString(dv, o + 13, 2).trim()
+    const cha = this.dataViewString(dv, o + 15, 3)
+    const srF = dv.getInt16(o + 32, byteorder) // sample rate factor
+    const srM = dv.getInt16(o + 34, byteorder) // sample rate multiplier
+    const actFlags = dv.getUint8(o + 36) // activity flags
+    const tCorr = dv.getInt32(o + 40, byteorder) / 10
     if ((actFlags & 2) === 0) {
       // apply time correction if needed
       starttime += tCorr
@@ -205,42 +205,42 @@ export class Stream {
   }
 
   decodeINT16 (dv: DataView, h: MSEEDHeaderStrict, index: number) {
-    let o = index + h.fsdh.dataBegin
-    let data = new Array(h.fsdh.npts)
+    const o = index + h.fsdh.dataBegin
+    const data = new Array(h.fsdh.npts)
     for (let i = 0; i < h.fsdh.npts; data[i] = dv.getInt16(o + i * 2, h.blkt1000.littleEndian), i++);
     return data
   }
 
   decodeINT32 (dv: DataView, h: MSEEDHeaderStrict, index: number) {
-    let o = index + h.fsdh.dataBegin
-    let data = new Array(h.fsdh.npts)
+    const o = index + h.fsdh.dataBegin
+    const data = new Array(h.fsdh.npts)
     for (let i = 0; i < h.fsdh.npts; data[i] = dv.getInt32(o + i * 4, h.blkt1000.littleEndian), i++);
     return data
   }
 
   decodeIEEE32 (dv: DataView, h: MSEEDHeaderStrict, index: number) {
-    let o = index + h.fsdh.dataBegin
-    let data = new Array(h.fsdh.npts)
+    const o = index + h.fsdh.dataBegin
+    const data = new Array(h.fsdh.npts)
     for (let i = 0; i < h.fsdh.npts; data[i] = dv.getFloat32(o + i * 4, h.blkt1000.littleEndian), i++);
     return data
   }
 
   decodeIEEE64 (dv: DataView, h: MSEEDHeaderStrict, index: number) {
-    let o = index + h.fsdh.dataBegin
-    let data = new Array(h.fsdh.npts)
+    const o = index + h.fsdh.dataBegin
+    const data = new Array(h.fsdh.npts)
     for (let i = 0; i < h.fsdh.npts; data[i] = dv.getFloat64(o + i * 8, h.blkt1000.littleEndian), i++);
     return data
   }
 
   decodeSteim (v: number, dv: DataView, h: MSEEDHeaderStrict, index: number) {
-    let o = index + h.fsdh.dataBegin
-    let nbFrame = (h.blkt1000.packetSize - h.fsdh.dataBegin) / 64
+    const o = index + h.fsdh.dataBegin
+    const nbFrame = (h.blkt1000.packetSize - h.fsdh.dataBegin) / 64
     let fi: number, w0: number, shift: number, fic: number, wi: number, nib: number, dnib: number
     let ric: (null | number) = null
     let dc = 0 // dc for "diff count"
-    let d = new Array(h.fsdh.npts)
-    let s = new Array(h.fsdh.npts)
-    let swapflag = h.blkt1000.littleEndian
+    const d = new Array(h.fsdh.npts)
+    const s = new Array(h.fsdh.npts)
+    const swapflag = h.blkt1000.littleEndian
     for (let fc = 0; fc < nbFrame; fc++) { // fc for "frame count"
       fi = o + fc * 64 // fi = "frame index" (a frame is 64byte long)
       wi = 4 // wi for "word index"
@@ -262,7 +262,7 @@ export class Stream {
             if (v === 1) { // STEIM 1
               for (let i = 0; i < 2; d[dc] = dv.getInt16(fi + wi + 2 * i, swapflag), dc++, i++); // 2 x 16bit diffs
             } else if (v === 2) { // STEIM 2
-              let wk = dv.getUint32(fi + wi, swapflag)
+              const wk = dv.getUint32(fi + wi, swapflag)
               dnib = wk >> 30 & 3
               switch (dnib) {
                 case 1: d[dc++] = this.signedInt(wk, 30); break // 1 x 30bit diff
@@ -275,7 +275,7 @@ export class Stream {
             if (v === 1) { // STEIM 1
               d[dc++] = dv.getInt32(fi + wi, swapflag) // 1 x 32bit diff
             } else if (v === 2) { // STEIM 2
-              let wk = dv.getUint32(fi + wi, swapflag)
+              const wk = dv.getUint32(fi + wi, swapflag)
               dnib = wk >> 30 & 3
               switch (dnib) {
                 case 0: for (let i = 4; i >= 0; d[dc] = this.signedInt(wk >> 6 * i, 6), dc++, i--); break // 5 x 6bit diffs
@@ -302,8 +302,8 @@ export class Stream {
   }
 
   _isYearDayValid (dv: DataView, index: number) {
-    let year = dv.getUint16(index + 20)
-    let julday = dv.getUint16(index + 22)
+    const year = dv.getUint16(index + 20)
+    const julday = dv.getUint16(index + 22)
     return year >= 1900 && year <= 2100 && julday >= 1 && julday <= 366
   }
 
@@ -328,7 +328,7 @@ export class Stream {
       // decode bloquette(s)
       let nextBloquette = h.fsdh.firstBlockette
       while (nextBloquette > 0) {
-        let blktCode = dv.getUint16(index + nextBloquette, byteorder)
+        const blktCode = dv.getUint16(index + nextBloquette, byteorder)
         if (blktCode === 1000) {
           h.blkt1000 = this.decodeBlkt1000(dv, index + nextBloquette, byteorder)
           byteorder = h.blkt1000.littleEndian
@@ -389,15 +389,15 @@ export const readWithWorker = (
   finishedCallback: (st: Stream) => void,
   updateCallback: (p: number) => void
 ) => {
-  let blob = new Blob([workerStr])
-  let worker = new Worker(window.URL.createObjectURL(blob))
+  const blob = new Blob([workerStr])
+  const worker = new Worker(window.URL.createObjectURL(blob))
 
   worker.onmessage = msg => {
     if (msg.data.status === 'update' && updateCallback != null) {
       updateCallback(msg.data.value)
     } else if (msg.data.status === 'finished') {
-      let st = new Stream()
-      for (let traceOpt of msg.data.value.traces) {
+      const st = new Stream()
+      for (const traceOpt of msg.data.value.traces) {
         st.traces.push(new Trace(traceOpt))
       }
       worker.terminate()

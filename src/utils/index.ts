@@ -9,7 +9,8 @@ export const ajax = (opt: AjaxOpt, xhr = new XMLHttpRequest()) => {
       throw new Error('"url" option is not defined')
     }
     opt.args = (
-      opt.args == null ? ''
+      opt.args == null
+        ? ''
         : '?' + Object.entries(opt.args).map(x => `${x[0]}=${x[1]}`).join('&')
     )
     xhr.open(opt.method, opt.url + opt.args)

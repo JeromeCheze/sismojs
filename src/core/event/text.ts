@@ -19,7 +19,7 @@ const EVENT_TYPE = 13
 export const parse = (text: string): EventParameter[] => {
   const lines = text.split('\n')
   const events: EventParameter[] = []
-  for (let line of lines.slice(1)) {
+  for (const line of lines.slice(1)) {
     if (line === '') {
       continue
     }

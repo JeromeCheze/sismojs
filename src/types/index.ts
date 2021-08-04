@@ -49,7 +49,7 @@ export type Origin = {
   longitude: RealQuantity;
   depth: RealQuantity;
   region: string;
-  creation_info: CreationInfo;
+  creation_info?: CreationInfo;
   arrival?: Arrival[];
 }
 
@@ -75,7 +75,7 @@ export type Magnitude = {
   public_id: string;
   mag: RealQuantity;
   type: string;
-  creation_info: CreationInfo;
+  creation_info?: CreationInfo;
   station_magnitude_contribution?: StationMagnitudeContribution[];
 }
 

@@ -76,7 +76,7 @@ const toSnakeCase = (x: string) => {
 const removeResourcePrefix = (id: string) => {
   if (id.indexOf('smi:org.gfz-potsdam.de/geofon/') === 0) {
     return id.replace('smi:org.gfz-potsdam.de/geofon/', '')
-  } else if (id.indexOf('smi:') === 0) {
+  } else if (id.indexOf('smi:') === 0 || id.indexOf('quakeml:') === 0) {
     return id.split('/').slice(2).join('/')
   }
   console.warn(`Failed to remove prefix of resource ID: ${id}`)
@@ -85,10 +85,10 @@ const removeResourcePrefix = (id: string) => {
 
 const xmlNodeToJson = (x: Element, path: string, rules: ConversionRules) => {
   path = `${path}/${toSnakeCase(x.tagName)}`
-  let obj: Record<string, any> = {}
-  for (let a of x.attributes) {
-    let key = toSnakeCase(a.name)
-    let currentPath = `${path}/${key}`
+  const obj: Record<string, any> = {}
+  for (const a of x.attributes) {
+    const key = toSnakeCase(a.name)
+    const currentPath = `${path}/${key}`
     let conv = rules.conversion[currentPath]
     if (RESOURCE_ID_KEYS.indexOf(currentPath) >= 0) {
       conv = removeResourcePrefix
@@ -102,13 +102,13 @@ const xmlNodeToJson = (x: Element, path: string, rules: ConversionRules) => {
       conv = removeResourcePrefix
     }
     // console.log(path, conv);
-    let value = conv && x.textContent != null ? conv(x.textContent) : x.textContent
+    const value = conv && x.textContent != null ? conv(x.textContent) : x.textContent
     return Object.keys(obj).length > 0 ? Object.assign(obj, { value }) : value
   } else {
-    for (let c of x.children) {
-      let key = toSnakeCase(c.tagName)
-      let currentPath = `${path}/${key}`
-      let value = xmlNodeToJson(c, path, rules)
+    for (const c of x.children) {
+      const key = toSnakeCase(c.tagName)
+      const currentPath = `${path}/${key}`
+      const value = xmlNodeToJson(c, path, rules)
       if (rules.nodeList.indexOf(currentPath) >= 0) { // it's a list
         if (obj[key] === undefined) {
           obj[key] = []
@@ -123,7 +123,7 @@ const xmlNodeToJson = (x: Element, path: string, rules: ConversionRules) => {
 }
 
 export const parse = (qml: XMLDocument) => {
-  let events = xmlNodeToJson(
+  const events = xmlNodeToJson(
     qml.getElementsByTagName('eventParameters')[0],
     '',
     CONVERSION_RULES

@@ -25,8 +25,12 @@ export class Client {
         type: params.format === 'text' ? 'text' : 'document',
         args: params
       }).then(response => {
-        if (driver != null) {
-          resolve(driver.parse(response))
+        try {
+          if (driver != null) {
+            resolve(driver.parse(response))
+          }
+        } catch (error) {
+          console.error(error)
         }
       }).catch(xhr => {
         throw new Error(xhr.statusText)
@@ -39,7 +43,7 @@ export class Client {
       throw new Error('The only supported format is "text"')
     }
     return new Promise((resolve) => {
-      let driver = core.station.text
+      const driver = core.station.text
       utils.ajax({
         method: 'GET',
         url: `${this.baseURL}/fdsnws/station/1/query`,
@@ -55,8 +59,8 @@ export class Client {
 
   getStationsBulk (bulk: FDSNStationBulkItem[]) {
     return new Promise((resolve) => {
-      let driver = core.station.text
-      let data = ['format=text', 'level=channel'].concat(bulk.map(([net, sta, loc, cha, t1, t2]) => {
+      const driver = core.station.text
+      const data = ['format=text', 'level=channel'].concat(bulk.map(([net, sta, loc, cha, t1, t2]) => {
         t1 = t1 instanceof Date ? t1.toISOString().slice(0, 19) : t1
         t2 = t2 instanceof Date ? t2.toISOString().slice(0, 19) : t2
         return `${net} ${sta} ${loc} ${cha} ${t1} ${t2}`
@@ -107,7 +111,7 @@ export class Client {
     useWorker = true
   ) {
     return new Promise((resolve, reject) => {
-      let data = bulk.map(([net, sta, loc, cha, t1, t2]) => {
+      const data = bulk.map(([net, sta, loc, cha, t1, t2]) => {
         t1 = t1 instanceof Date ? t1.toISOString().slice(0, 19) : t1
         t2 = t2 instanceof Date ? t2.toISOString().slice(0, 19) : t2
         return `${net} ${sta} ${loc} ${cha} ${t1} ${t2}`
