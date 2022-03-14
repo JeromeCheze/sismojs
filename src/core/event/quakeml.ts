@@ -12,7 +12,9 @@ const CONVERSION_RULES: ConversionRules = {
     '/event_parameters/event/origin/arrival',
     '/event_parameters/event/magnitude',
     '/event_parameters/event/pick',
-    '/event_parameters/event/description'
+    '/event_parameters/event/description',
+    '/event_parameters/event/focal_mechanism',
+    '/event_parameters/event/focal_mechanism/comment'
   ],
   conversion: {
     // conversion function :
@@ -45,7 +47,13 @@ const CONVERSION_RULES: ConversionRules = {
     '/event_parameters/event/amplitude/snr': parseFloat,
     '/event_parameters/event/amplitude/time_window/begin': parseFloat,
     '/event_parameters/event/amplitude/time_window/end': parseFloat,
-    '/event_parameters/event/station_magnitude/mag/value': parseFloat
+    '/event_parameters/event/station_magnitude/mag/value': parseFloat,
+    '/event_parameters/event/focal_mechanism/nodal_planes/nodal_plane1/strike/value': parseFloat,
+    '/event_parameters/event/focal_mechanism/nodal_planes/nodal_plane1/dip/value': parseFloat,
+    '/event_parameters/event/focal_mechanism/nodal_planes/nodal_plane1/rake/value': parseFloat,
+    '/event_parameters/event/focal_mechanism/nodal_planes/nodal_plane2/strike/value': parseFloat,
+    '/event_parameters/event/focal_mechanism/nodal_planes/nodal_plane2/dip/value': parseFloat,
+    '/event_parameters/event/focal_mechanism/nodal_planes/nodal_plane2/rake/value': parseFloat
   }
 }
 
@@ -66,14 +74,16 @@ const RESOURCE_ID_KEYS = [
   '/event_parameters/event/station_magnitude/public_id',
   '/event_parameters/event/station_magnitude/amplitude_id',
   '/event_parameters/event/amplitude/public_id',
-  '/event_parameters/event/amplitude/pick_id'
+  '/event_parameters/event/amplitude/pick_id',
+  '/event_parameters/event/focal_mechanism/public_id',
+  '/event_parameters/event/focal_mechanism/triggering_origin_id'
 ]
 
 const toSnakeCase = (x: string) => {
   return x.replace(/([A-Z]+)/g, '_$1').toLowerCase()
 }
 
-const removeResourcePrefix = (id: string) => {
+export const removeResourcePrefix = (id: string) => {
   if (id.indexOf('smi:org.gfz-potsdam.de/geofon/') === 0) {
     return id.replace('smi:org.gfz-potsdam.de/geofon/', '')
   } else if (id.indexOf('smi:') === 0 || id.indexOf('quakeml:') === 0) {

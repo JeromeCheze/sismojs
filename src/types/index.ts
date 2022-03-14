@@ -19,6 +19,8 @@ export type RealQuantity = {
   _pretty_uncertainty?: string;
 }
 
+export type EvaluationMode = 'automatic' | 'manual'
+
 export type CreationInfo = {
   author: string;
   creation_time?: string;
@@ -32,6 +34,7 @@ export type Pick = {
   waveform_id: WaveformId;
   _seedid?: string;
   _fdsnid?: string;
+  evaluation_mode?: EvaluationMode;
 }
 
 export type Arrival = {
@@ -51,6 +54,7 @@ export type Origin = {
   region: string;
   creation_info?: CreationInfo;
   arrival?: Arrival[];
+  evaluation_mode?: EvaluationMode;
 }
 
 export type StationMagnitude = {
@@ -76,6 +80,7 @@ export type Magnitude = {
   mag: RealQuantity;
   type: string;
   creation_info?: CreationInfo;
+  method_id?: string;
   station_magnitude_contribution?: StationMagnitudeContribution[];
 }
 
@@ -87,6 +92,26 @@ export type Amplitude = {
 
 export type EventDescription = {
   text: string;
+}
+
+export type NodalPlane = {
+  strike: RealQuantity;
+  dip: RealQuantity;
+  rake: RealQuantity;
+}
+
+export type NodalPlanes = {
+  nodal_plane1?: NodalPlane;
+  nodal_plane2?: NodalPlane;
+}
+
+export type FocalMechanism = {
+  public_id: string;
+  triggering_origin_id?: string;
+  nodal_planes?: NodalPlanes;
+  station_polarity_count?: number;
+  evaluation_mode?: EvaluationMode;
+  comment?: string[];
 }
 
 export type EventParameter = {
@@ -103,6 +128,7 @@ export type EventParameter = {
   _po?: Origin;
   _pm?: Magnitude;
   pick?: Pick[];
+  focal_mechanism?: FocalMechanism[];
 }
 
 export type ConversionRules = {
