@@ -37,7 +37,7 @@ export const parse = (text: string): EventParameter[] => {
           value: parseFloat(splited[LONGITUDE])
         },
         depth: {
-          value: parseFloat(splited[DEPTH])
+          value: parseFloat(splited[DEPTH]) * 1e3
         },
         region: splited[EVENT_LOCATION_NAME],
         creation_info: {
