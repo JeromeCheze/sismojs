@@ -32,6 +32,7 @@ export type Pick = {
   public_id: string;
   time: TimeQuantity;
   waveform_id: WaveformId;
+  phase_hint: string;
   _seedid?: string;
   _fdsnid?: string;
   evaluation_mode?: EvaluationMode;
@@ -41,6 +42,7 @@ export type Arrival = {
   public_id?: string;
   time_weight: number;
   pick_id: string;
+  phase: string;
   _pick?: Pick;
   _traveltime: Date;
 }
