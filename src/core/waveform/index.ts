@@ -2,9 +2,9 @@ import workerStr from './worker'
 import { Bloquette1000, FSDH, MSEEDHeader, MSEEDHeaderStrict, TraceConstructorParameters, TraceStats, TraceTimeserie, UpdateFunction } from '../../types'
 
 export class Trace {
-  timeseries: TraceTimeserie[];
-  stats: TraceStats;
-  __tolerance: number;
+  timeseries: TraceTimeserie[]
+  stats: TraceStats
+  __tolerance: number
 
   constructor (opt: TraceConstructorParameters) {
     // This define a time tolerance (as a period ratio) for continuous traces
@@ -115,8 +115,8 @@ export class Trace {
 }
 
 export class Stream {
-  ENCODING: (string | null)[];
-  traces: Trace[];
+  ENCODING: (string | null)[]
+  traces: Trace[]
 
   constructor (dv?: DataView, updateFunction?: UpdateFunction) {
     this.ENCODING = [
@@ -187,7 +187,7 @@ export class Stream {
     }
     return {
       seedId: [net, sta, loc, cha].join('.'),
-      starttime: starttime,
+      starttime,
       npts: dv.getUint16(o + 30, byteorder),
       samplingRate: Math.abs(val),
       dataBegin: dv.getUint16(o + 44, byteorder),

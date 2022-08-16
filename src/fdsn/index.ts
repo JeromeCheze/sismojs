@@ -3,7 +3,7 @@ import core from '../core'
 import { EventDriver, FDSNEventParams, FDSNStationBulkItem, FDSNStationParams, FDSNWaveformBulkItem, FDSNWaveformParams } from '../types/index.js'
 
 export class Client {
-  baseURL: string;
+  baseURL: string
 
   constructor (baseURL: string) {
     this.baseURL = baseURL

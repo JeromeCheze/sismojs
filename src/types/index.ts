@@ -59,6 +59,12 @@ export type Origin = {
   evaluation_mode?: EvaluationMode;
 }
 
+export type Amplitude = {
+  public_id: string;
+  waveform_id: WaveformId;
+  _seedid?: string;
+}
+
 export type StationMagnitude = {
   public_id: string;
   amplitude_id: string;
@@ -84,12 +90,6 @@ export type Magnitude = {
   creation_info?: CreationInfo;
   method_id?: string;
   station_magnitude_contribution?: StationMagnitudeContribution[];
-}
-
-export type Amplitude = {
-  public_id: string;
-  waveform_id: WaveformId;
-  _seedid?: string;
 }
 
 export type EventDescription = {
