@@ -23,6 +23,7 @@ export type EvaluationMode = 'automatic' | 'manual'
 
 export type CreationInfo = {
   author: string;
+  agency_id: string;
   creation_time?: string;
   _creation_time?: Date;
   _pretty_creation_time?: string;
@@ -123,12 +124,16 @@ export type EventParameter = {
   amplitude?: Amplitude[];
   station_magnitude?: StationMagnitude[];
   type: string;
+  type_certainty?: string;
   preferred_origin_id?: string | null;
   preferred_magnitude_id?: string | null;
+  preferred_focal_mechanism_id?: string;
+  creation_info?: CreationInfo;
   _region?: string;
   description?: EventDescription[];
   _po?: Origin;
   _pm?: Magnitude;
+  _pfm?: FocalMechanism;
   pick?: Pick[];
   focal_mechanism?: FocalMechanism[];
 }

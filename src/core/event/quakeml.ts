@@ -61,6 +61,7 @@ const RESOURCE_ID_KEYS = [
   '/event_parameters/event/public_id',
   '/event_parameters/event/preferred_origin_id',
   '/event_parameters/event/preferred_magnitude_id',
+  '/event_parameters/event/preferred_focal_mechanism_id',
   '/event_parameters/event/origin/public_id',
   '/event_parameters/event/origin/earth_model_id',
   '/event_parameters/event/origin/method_id',

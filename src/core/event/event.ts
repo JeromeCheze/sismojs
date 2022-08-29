@@ -70,6 +70,9 @@ export default function processEvents (e: EventParameter): EventParameter {
   } else {
     e.preferred_magnitude_id = null
   }
+  if (e.preferred_focal_mechanism_id && e.focal_mechanism != null) {
+    e._pfm = e.focal_mechanism.find(x => x.public_id === e.preferred_focal_mechanism_id)
+  }
   if (e.pick != null && e._po != null && e._po.arrival != null) {
     const pickMap: Record<string, Pick> = {}
     for (const p of e.pick) {

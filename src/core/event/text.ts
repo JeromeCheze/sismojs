@@ -8,7 +8,7 @@ const LONGITUDE = 3
 const DEPTH = 4
 const AUTHOR = 5
 // const CATALOG = 6
-// const CONSTRIBUTOR = 7
+const CONSTRIBUTOR = 7
 // const CONSTRIBUTOR_ID = 8
 const MAG_TYPE = 9
 const MAGNITUDE = 10
@@ -41,7 +41,8 @@ export const parse = (text: string): EventParameter[] => {
         },
         region: splited[EVENT_LOCATION_NAME],
         creation_info: {
-          author: splited[AUTHOR]
+          author: splited[AUTHOR],
+          agency_id: splited[CONSTRIBUTOR]
         }
       }],
       magnitude: [{
@@ -51,7 +52,8 @@ export const parse = (text: string): EventParameter[] => {
         },
         type: splited[MAG_TYPE],
         creation_info: {
-          author: splited[MAG_AUTHOR]
+          author: splited[MAG_AUTHOR],
+          agency_id: splited[CONSTRIBUTOR]
         }
       }],
       type: splited[EVENT_TYPE],
