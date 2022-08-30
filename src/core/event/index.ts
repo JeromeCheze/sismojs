@@ -1,6 +1,7 @@
 import { EventParameter } from '../../types'
 import * as quakeml from './quakeml'
 import * as text from './text'
+import processEvent from './event'
 
 const readEvents = (input: string | XMLDocument): EventParameter[] => {
   if (typeof input === 'string') {
@@ -11,6 +12,7 @@ const readEvents = (input: string | XMLDocument): EventParameter[] => {
 }
 
 export default {
+  processEvent,
   readEvents,
   quakeml,
   text

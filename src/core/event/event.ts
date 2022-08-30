@@ -8,7 +8,7 @@ const toSeedId = (wfid: WaveformId): string => {
   return [wfid.network_code, wfid.station_code, loc, wfid.channel_code].join('.')
 }
 
-export default function processEvents (e: EventParameter): EventParameter {
+export default function processEvent (e: EventParameter): EventParameter {
   // e._id = e.public_id.split('/').slice(-1)[0]
   for (const o of e.origin) {
     o.time._value = new Date(Date.parse(o.time.value))

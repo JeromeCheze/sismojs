@@ -9,7 +9,9 @@ export type WaveformId = {
 export type TimeQuantity = {
   value: string;
   _value?: Date;
-  _pretty?: string
+  _pretty?: string;
+  lower_uncertainty?: number;
+  upper_uncertainty?: number;
 }
 
 export type RealQuantity = {
@@ -20,6 +22,7 @@ export type RealQuantity = {
 }
 
 export type EvaluationMode = 'automatic' | 'manual'
+export type EvaluationStatus = 'preliminary' | 'confirmed' | 'reviewed' | 'final' | 'rejected'
 
 export type CreationInfo = {
   author: string;
@@ -34,9 +37,12 @@ export type Pick = {
   time: TimeQuantity;
   waveform_id: WaveformId;
   phase_hint: string;
-  _seedid?: string;
-  _fdsnid?: string;
-  evaluation_mode?: EvaluationMode;
+  _seedid: string;
+  _fdsnid: string;
+  evaluation_mode: EvaluationMode;
+  polarity?: string;
+  creation_info: CreationInfo;
+  filter_id?: string;
 }
 
 export type Arrival = {
@@ -46,6 +52,15 @@ export type Arrival = {
   phase: string;
   _pick?: Pick;
   _traveltime: Date;
+  takeoff_angle?: RealQuantity;
+  time_residual: number;
+  distance: number;
+  azimuth: number;
+}
+
+export type OriginQuality = {
+  used_phase_count: number;
+  associated_phase_count: number;
 }
 
 export type Origin = {
@@ -58,12 +73,14 @@ export type Origin = {
   creation_info?: CreationInfo;
   arrival?: Arrival[];
   evaluation_mode?: EvaluationMode;
+  evaluation_status?: EvaluationStatus | null;
+  quality?: OriginQuality;
 }
 
 export type Amplitude = {
   public_id: string;
   waveform_id: WaveformId;
-  _seedid?: string;
+  _seedid: string;
 }
 
 export type StationMagnitude = {
@@ -72,7 +89,7 @@ export type StationMagnitude = {
   _amplitude?: Amplitude;
   mag: RealQuantity;
   waveform_id: WaveformId;
-  _seedid?: string;
+  _seedid: string;
 }
 
 export type StationMagnitudeContribution = {
@@ -86,6 +103,7 @@ export type StationMagnitudeContribution = {
 
 export type Magnitude = {
   public_id: string;
+  origin_id: string;
   mag: RealQuantity;
   type: string;
   creation_info?: CreationInfo;
@@ -94,6 +112,7 @@ export type Magnitude = {
 }
 
 export type EventDescription = {
+  type?: string;
   text: string;
 }
 
@@ -104,14 +123,14 @@ export type NodalPlane = {
 }
 
 export type NodalPlanes = {
-  nodal_plane1?: NodalPlane;
+  nodal_plane1: NodalPlane;
   nodal_plane2?: NodalPlane;
 }
 
 export type FocalMechanism = {
   public_id: string;
   triggering_origin_id?: string;
-  nodal_planes?: NodalPlanes;
+  nodal_planes: NodalPlanes;
   station_polarity_count?: number;
   evaluation_mode?: EvaluationMode;
   comment?: string[];
@@ -124,10 +143,10 @@ export type EventParameter = {
   amplitude?: Amplitude[];
   station_magnitude?: StationMagnitude[];
   type: string;
-  type_certainty?: string;
+  type_certainty?: string | null;
   preferred_origin_id?: string | null;
   preferred_magnitude_id?: string | null;
-  preferred_focal_mechanism_id?: string;
+  preferred_focal_mechanism_id?: string | null;
   creation_info?: CreationInfo;
   _region?: string;
   description?: EventDescription[];

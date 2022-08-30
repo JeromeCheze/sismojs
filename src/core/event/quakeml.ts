@@ -1,4 +1,4 @@
-import processEvents from './event'
+import processEvent from './event'
 import { ConversionRules, EventParameter } from '../../types'
 
 const CONVERSION_RULES: ConversionRules = {
@@ -139,5 +139,5 @@ export const parse = (qml: XMLDocument) => {
     '',
     CONVERSION_RULES
   ).event
-  return events.map((e: EventParameter) => processEvents(e))
+  return events.map((e: EventParameter) => processEvent(e))
 }

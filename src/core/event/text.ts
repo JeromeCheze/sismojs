@@ -1,4 +1,4 @@
-import processEvents from './event'
+import processEvent from './event'
 import { EventParameter } from '../../types'
 
 const EVENT_ID = 0
@@ -47,6 +47,7 @@ export const parse = (text: string): EventParameter[] => {
       }],
       magnitude: [{
         public_id: 'magnitude-0',
+        origin_id: 'origin-0',
         mag: {
           value: parseFloat(splited[MAGNITUDE])
         },
@@ -63,5 +64,5 @@ export const parse = (text: string): EventParameter[] => {
     }
     events.push(event)
   }
-  return events.map(e => processEvents(e))
+  return events.map(e => processEvent(e))
 }
