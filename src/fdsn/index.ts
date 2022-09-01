@@ -1,6 +1,6 @@
 import * as utils from '../utils'
 import core from '../core'
-import { EventDriver, FDSNEventParams, FDSNStationBulkItem, FDSNStationParams, FDSNWaveformBulkItem, FDSNWaveformParams } from '../types/index.js'
+import { EventDriver, EventParameter, FDSNEventParams, FDSNStationBulkItem, FDSNStationParams, FDSNWaveformBulkItem, FDSNWaveformParams } from '../types/index.js'
 
 export class Client {
   baseURL: string
@@ -10,7 +10,7 @@ export class Client {
   }
 
   getEvents (params: FDSNEventParams) {
-    return new Promise((resolve) => {
+    return new Promise<EventParameter[]>((resolve) => {
       let driver: EventDriver | null = null
       if (params.format === undefined || params.format === 'xml') {
         driver = core.event.quakeml
@@ -47,7 +47,7 @@ export class Client {
       utils.ajax({
         method: 'GET',
         url: `${this.baseURL}/fdsnws/station/1/query`,
-        type: params.format,
+        type: params.format as XMLHttpRequestResponseType,
         args: params
       }).then(response => {
         resolve(driver.parse(<string>response))

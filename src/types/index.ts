@@ -171,12 +171,46 @@ export type AjaxOpt = {
   data?: string;
 }
 
-export type FDSNEventParams = {
+export type FDSNEventParams = Partial<{
   format: string;
-}
+  minlatitude: number;
+  minlongitude: number;
+  maxlatitude: number;
+  maxlongitude: number;
+  minmagnitude: number;
+  maxmagnitude: number;
+  minmag: number;
+  maxmag: number;
+  minlat: number;
+  minlon: number;
+  maxlat: number;
+  maxlon: number;
+  eventid: string;
+  includeallorigins: boolean;
+  includeallmagnitudes: boolean;
+  includearrivals: boolean;
+  includefocalmechanism: boolean;
+  includestationmagnitudes: boolean;
+}>
 
 export type FDSNStationParams = {
-  format: XMLHttpRequestResponseType;
+  format: string;
+  minlatitude: number;
+  minlongitude: number;
+  maxlatitude: number;
+  maxlongitude: number;
+  minmagnitude: number;
+  maxmagnitude: number;
+  minlat: number;
+  minlon: number;
+  maxlat: number;
+  maxlon: number;
+  latitude: number;
+  longitude: number;
+  lat: number;
+  lon: number;
+  minradius: number;
+  maxradius: number;
 }
 
 export type FDSNStationBulkItem = [string, string, string, string, Date | string, Date | string]
