@@ -139,5 +139,5 @@ export const parse = (qml: XMLDocument) => {
     '',
     CONVERSION_RULES
   ).event
-  return events.map((e: EventParameter) => processEvent(e))
+  return events != null ? events.map((e: EventParameter) => processEvent(e)) : []
 }
