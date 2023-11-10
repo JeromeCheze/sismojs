@@ -127,13 +127,17 @@ export type NodalPlanes = {
   nodal_plane2?: NodalPlane;
 }
 
+export type Comment = {
+  text: string
+}
+
 export type FocalMechanism = {
   public_id: string;
   triggering_origin_id?: string;
   nodal_planes: NodalPlanes;
   station_polarity_count?: number;
   evaluation_mode?: EvaluationMode;
-  comment?: string[];
+  comment?: Comment[];
 }
 
 export type EventParameter = {
