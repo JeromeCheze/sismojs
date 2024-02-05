@@ -1,5 +1,5 @@
 import workerStr from './worker'
-import { Bloquette1000, FSDH, MSEEDHeader, MSEEDHeaderStrict, TraceConstructorParameters, TraceStats, TraceTimeserie, UpdateFunction } from '../../types'
+import type { Bloquette1000, FSDH, MSEEDHeader, MSEEDHeaderStrict, TraceConstructorParameters, TraceStats, TraceTimeserie, UpdateFunction } from '../../types'
 
 export class Trace {
   timeseries: TraceTimeserie[]

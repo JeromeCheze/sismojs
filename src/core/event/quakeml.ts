@@ -1,5 +1,5 @@
-import processEvent from './event'
-import { ConversionRules, EventParameter } from '../../types'
+import { processEvent } from './event'
+import type { ConversionRules, EventParameter } from '../../types'
 
 const CONVERSION_RULES: ConversionRules = {
   nodeList: [

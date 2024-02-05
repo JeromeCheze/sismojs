@@ -1,5 +1,5 @@
-import processEvent from './event'
-import { EventParameter } from '../../types'
+import { processEvent } from './event'
+import type { EventParameter } from '../../types'
 
 const EVENT_ID = 0
 const TIME = 1

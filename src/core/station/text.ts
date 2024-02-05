@@ -1,4 +1,4 @@
-import { Inventory } from '../../types'
+import type { Inventory } from '../../types'
 
 const NETWORK = 0
 const STATION = 1
