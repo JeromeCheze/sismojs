@@ -9,7 +9,7 @@ export class Client {
   }
 
   getEvents (params: FDSNEventParams) {
-    if (params.format != null && params.format != 'text' && params.format != 'xml') {
+    if (params.format != null && params.format !== 'text' && params.format !== 'xml') {
       throw new Error(`Unsupported format: ${params.format}`)
     }
     return new Promise<EventParameter[]>((resolve, reject) => {

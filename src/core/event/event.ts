@@ -99,7 +99,7 @@ export function processEvent (e: EventParameter): EventParameter {
   } else {
     e._region = ''
   }
-  e._region = e._region.toUpperCase()
+  // e._region = e._region.toUpperCase()
   if (e.preferred_magnitude_id) {
     e._pm = e.magnitude.find(x => x.public_id === e.preferred_magnitude_id)
   } else {
