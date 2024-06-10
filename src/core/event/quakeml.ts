@@ -1,88 +1,96 @@
 import { processEvent } from './event'
 import type { ConversionRules, EventParameter } from '../../types'
+import { Event, type EventDescription } from './types'
 
 const CONVERSION_RULES: ConversionRules = {
   nodeList: [
     // keep list for all these nodes :
-    '/event_parameters/event',
-    '/event_parameters/event/amplitude',
-    '/event_parameters/event/station_magnitude',
-    '/event_parameters/event/magnitude/station_magnitude_contribution',
-    '/event_parameters/event/origin',
-    '/event_parameters/event/origin/arrival',
-    '/event_parameters/event/magnitude',
-    '/event_parameters/event/pick',
-    '/event_parameters/event/description',
-    '/event_parameters/event/focal_mechanism',
-    '/event_parameters/event/focal_mechanism/comment'
+    'eventParameters.event',
+    'eventParameters.event.amplitude',
+    'eventParameters.event.stationMagnitude',
+    'eventParameters.event.magnitude.stationMagnitudeContribution',
+    'eventParameters.event.origin',
+    'eventParameters.event.origin.arrival',
+    'eventParameters.event.magnitude',
+    'eventParameters.event.pick',
+    'eventParameters.event.description',
+    'eventParameters.event.focalMechanism',
+    'eventParameters.event.focalMechanism.comment'
   ],
   conversion: {
     // conversion function :
-    '/event_parameters/event/origin/latitude/value': parseFloat,
-    '/event_parameters/event/origin/latitude/uncertainty': parseFloat,
-    '/event_parameters/event/origin/longitude/value': parseFloat,
-    '/event_parameters/event/origin/longitude/uncertainty': parseFloat,
-    '/event_parameters/event/origin/depth/value': parseFloat,
-    '/event_parameters/event/origin/depth/uncertainty': parseFloat,
-    '/event_parameters/event/origin/time/uncertainty': parseFloat,
-    '/event_parameters/event/origin/quality/standard_error': parseFloat,
-    '/event_parameters/event/origin/quality/azimuthal_gap': parseFloat,
-    '/event_parameters/event/origin/quality/associated_phase_count': parseInt,
-    '/event_parameters/event/origin/quality/associated_station_count': parseInt,
-    '/event_parameters/event/origin/quality/used_phase_count': parseInt,
-    '/event_parameters/event/origin/quality/used_station_count': parseInt,
-    '/event_parameters/event/origin/quality/minimum_distance': parseFloat,
-    '/event_parameters/event/origin/quality/maximum_distance': parseFloat,
-    '/event_parameters/event/origin/quality/median_distance': parseFloat,
-    '/event_parameters/event/origin/arrival/time_residual': parseFloat,
-    '/event_parameters/event/origin/arrival/time_weight': parseFloat,
-    '/event_parameters/event/origin/arrival/distance': parseFloat,
-    '/event_parameters/event/origin/arrival/azimuth': parseFloat,
-    '/event_parameters/event/magnitude/mag/value': parseFloat,
-    '/event_parameters/event/magnitude/mag/uncertainty': parseFloat,
-    '/event_parameters/event/magnitude/stationCount': parseInt,
-    '/event_parameters/event/magnitude/station_magnitude_contribution/weight': parseFloat,
-    '/event_parameters/event/magnitude/station_magnitude_contribution/residual': parseFloat,
-    '/event_parameters/event/amplitude/generic_amplitude': parseFloat,
-    '/event_parameters/event/amplitude/snr': parseFloat,
-    '/event_parameters/event/amplitude/time_window/begin': parseFloat,
-    '/event_parameters/event/amplitude/time_window/end': parseFloat,
-    '/event_parameters/event/station_magnitude/mag/value': parseFloat,
-    '/event_parameters/event/focal_mechanism/nodal_planes/nodal_plane1/strike/value': parseFloat,
-    '/event_parameters/event/focal_mechanism/nodal_planes/nodal_plane1/dip/value': parseFloat,
-    '/event_parameters/event/focal_mechanism/nodal_planes/nodal_plane1/rake/value': parseFloat,
-    '/event_parameters/event/focal_mechanism/nodal_planes/nodal_plane2/strike/value': parseFloat,
-    '/event_parameters/event/focal_mechanism/nodal_planes/nodal_plane2/dip/value': parseFloat,
-    '/event_parameters/event/focal_mechanism/nodal_planes/nodal_plane2/rake/value': parseFloat
+    'eventParameters.event.origin.latitude.value': parseFloat,
+    'eventParameters.event.origin.latitude.uncertainty': parseFloat,
+    'eventParameters.event.origin.longitude.value': parseFloat,
+    'eventParameters.event.origin.longitude.uncertainty': parseFloat,
+    'eventParameters.event.origin.depth.value': parseFloat,
+    'eventParameters.event.origin.depth.uncertainty': parseFloat,
+    'eventParameters.event.origin.time.uncertainty': parseFloat,
+    'eventParameters.event.origin.quality.standardError': parseFloat,
+    'eventParameters.event.origin.quality.azimuthalGap': parseFloat,
+    'eventParameters.event.origin.quality.associatedPhaseCount': parseInt,
+    'eventParameters.event.origin.quality.associatedStationCount': parseInt,
+    'eventParameters.event.origin.quality.usedPhaseCount': parseInt,
+    'eventParameters.event.origin.quality.usedStationCount': parseInt,
+    'eventParameters.event.origin.quality.minimumDistance': parseFloat,
+    'eventParameters.event.origin.quality.maximumDistance': parseFloat,
+    'eventParameters.event.origin.quality.medianDistance': parseFloat,
+    'eventParameters.event.origin.arrival.timeResidual': parseFloat,
+    'eventParameters.event.origin.arrival.timeWeight': parseFloat,
+    'eventParameters.event.origin.arrival.distance': parseFloat,
+    'eventParameters.event.origin.arrival.azimuth': parseFloat,
+    'eventParameters.event.magnitude.mag.value': parseFloat,
+    'eventParameters.event.magnitude.mag.uncertainty': parseFloat,
+    'eventParameters.event.magnitude.stationCount': parseInt,
+    'eventParameters.event.magnitude.stationMagnitudeContribution.weight': parseFloat,
+    'eventParameters.event.magnitude.stationMagnitudeContribution.residual': parseFloat,
+    'eventParameters.event.amplitude.genericAmplitude': parseFloat,
+    'eventParameters.event.amplitude.snr': parseFloat,
+    'eventParameters.event.amplitude.timeWindow.begin': parseFloat,
+    'eventParameters.event.amplitude.timeWindow.end': parseFloat,
+    'eventParameters.event.stationMagnitude.mag.value': parseFloat,
+    'eventParameters.event.focalMechanism.nodalPlanes.nodalPlane1.strike.value': parseFloat,
+    'eventParameters.event.focalMechanism.nodalPlanes.nodalPlane1.dip.value': parseFloat,
+    'eventParameters.event.focalMechanism.nodalPlanes.nodalPlane1.rake.value': parseFloat,
+    'eventParameters.event.focalMechanism.nodalPlanes.nodalPlane2.strike.value': parseFloat,
+    'eventParameters.event.focalMechanism.nodalPlanes.nodalPlane2.dip.value': parseFloat,
+    'eventParameters.event.focalMechanism.nodalPlanes.nodalPlane2.rake.value': parseFloat
   }
 }
 
 const RESOURCE_ID_KEYS = [
-  '/event_parameters/event/public_id',
-  '/event_parameters/event/preferred_origin_id',
-  '/event_parameters/event/preferred_magnitude_id',
-  '/event_parameters/event/preferred_focal_mechanism_id',
-  '/event_parameters/event/origin/public_id',
-  '/event_parameters/event/origin/earth_model_id',
-  '/event_parameters/event/origin/method_id',
-  '/event_parameters/event/origin/arrival/pick_id',
-  '/event_parameters/event/magnitude/public_id',
-  '/event_parameters/event/magnitude/method_id',
-  '/event_parameters/event/magnitude/origin_id',
-  '/event_parameters/event/magnitude/station_magnitude_contribution/station_magnitude_id',
-  '/event_parameters/event/pick/public_id',
-  '/event_parameters/event/station_magnitude/origin_id',
-  '/event_parameters/event/station_magnitude/public_id',
-  '/event_parameters/event/station_magnitude/amplitude_id',
-  '/event_parameters/event/amplitude/public_id',
-  '/event_parameters/event/amplitude/pick_id',
-  '/event_parameters/event/focal_mechanism/public_id',
-  '/event_parameters/event/focal_mechanism/triggering_origin_id'
+  'eventParameters.event.@publicID',
+  'eventParameters.event.preferredOriginID',
+  'eventParameters.event.preferredMagnitudeID',
+  'eventParameters.event.preferredFocalMechanismID',
+  'eventParameters.event.origin.@publicID',
+  'eventParameters.event.origin.earthModelID',
+  'eventParameters.event.origin.methodID',
+  'eventParameters.event.origin.creationInfo.agencyID',
+  'eventParameters.event.origin.arrival.pickID',
+  'eventParameters.event.magnitude.@publicID',
+  'eventParameters.event.magnitude.methodID',
+  'eventParameters.event.magnitude.originID',
+  'eventParameters.event.magnitude.creationInfo.agencyID',
+  'eventParameters.event.magnitude.stationMagnitudeContribution.stationMagnitudeID',
+  'eventParameters.event.pick.@publicID',
+  'eventParameters.event.pick.methodID',
+  'eventParameters.event.pick.filterID',
+  'eventParameters.event.pick.creationInfo.agencyID',
+  'eventParameters.event.stationMagnitude.originID',
+  'eventParameters.event.stationMagnitude.@publicID',
+  'eventParameters.event.stationMagnitude.amplitudeID',
+  'eventParameters.event.amplitude.@publicID',
+  'eventParameters.event.amplitude.filterID',
+  'eventParameters.event.amplitude.methodID',
+  'eventParameters.event.amplitude.pickID',
+  'eventParameters.event.focalMechanism.@publicID',
+  'eventParameters.event.focalMechanism.triggeringOriginID'
 ]
 
-const toSnakeCase = (x: string) => {
-  return x.replace(/([A-Z]+)/g, '_$1').toLowerCase()
-}
+// const toSnakeCase = (x: string) => {
+//   return x.replace(/([A-Z]+)/g, '_$1').toLowerCase()
+// }
 
 export const removeResourcePrefix = (id: string) => {
   if (id.indexOf('smi:org.gfz-potsdam.de/geofon/') === 0) {
@@ -95,11 +103,12 @@ export const removeResourcePrefix = (id: string) => {
 }
 
 const xmlNodeToJson = (x: Element, path: string, rules: ConversionRules) => {
-  path = `${path}/${toSnakeCase(x.tagName)}`
+  // path = `${path}/${toSnakeCase(x.tagName)}`
   const obj: Record<string, any> = {}
   for (const a of x.attributes) {
-    const key = toSnakeCase(a.name)
-    const currentPath = `${path}/${key}`
+    // const key = toSnakeCase(a.name)
+    const key = `@${a.name}`
+    const currentPath = `${path}.${key}`
     let conv = rules.conversion[currentPath]
     if (RESOURCE_ID_KEYS.indexOf(currentPath) >= 0) {
       conv = removeResourcePrefix
@@ -114,12 +123,17 @@ const xmlNodeToJson = (x: Element, path: string, rules: ConversionRules) => {
     }
     // console.log(path, conv);
     const value = conv && x.textContent != null ? conv(x.textContent) : x.textContent
-    return Object.keys(obj).length > 0 ? Object.assign(obj, { value }) : value
+    return Object.keys(obj).length > 0
+      ? value.length > 0
+        ? Object.assign(obj, { '#text': value })
+        : obj
+      : value
   } else {
     for (const c of x.children) {
-      const key = toSnakeCase(c.tagName)
-      const currentPath = `${path}/${key}`
-      const value = xmlNodeToJson(c, path, rules)
+      // const key = toSnakeCase(c.tagName)
+      const key = c.tagName
+      const currentPath = `${path}.${key}`
+      const value = xmlNodeToJson(c, currentPath, rules)
       if (rules.nodeList.indexOf(currentPath) >= 0) { // it's a list
         if (obj[key] === undefined) {
           obj[key] = []
@@ -136,8 +150,10 @@ const xmlNodeToJson = (x: Element, path: string, rules: ConversionRules) => {
 export const parse = (qml: XMLDocument) => {
   const events = xmlNodeToJson(
     qml.getElementsByTagName('eventParameters')[0],
-    '',
+    'eventParameters',
     CONVERSION_RULES
   ).event
-  return events != null ? events.map((e: EventParameter) => processEvent(e)) : []
+  console.log(events)
+  // return events != null ? events.map((e: EventParameter) => processEvent(e)) : []
+  return events != null ? events.map((e: EventDescription) => new Event(e)) : []
 }

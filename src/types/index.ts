@@ -196,8 +196,17 @@ export type FDSNEventParams = Partial<{
   includestationmagnitudes: boolean
 }>
 
-export type FDSNStationParams = {
+export type FDSNStationParams = Partial<{
+  level: 'network' | 'station' | 'channel' | 'response'
   format: string
+  network: string
+  station: string
+  location: string
+  channel: string
+  starttime: string
+  endtime: string
+  start: string
+  end: string
   minlatitude: number
   minlongitude: number
   maxlatitude: number
@@ -214,7 +223,7 @@ export type FDSNStationParams = {
   lon: number
   minradius: number
   maxradius: number
-}
+}>
 
 export type FDSNStationBulkItem = [string, string, string, string, Date | string, Date | string]
 
