@@ -30,6 +30,7 @@ export interface CommentDescription {
 
 export interface TimeQuantityDescription {
   value: string
+  uncertainty?: number
   lowerUncertainty?: number
   upperUncertainty?: number
 }
@@ -42,6 +43,8 @@ export class TimeQuantity {
   }
   get value() { return this.desc.value }
   set value(value: string) { this.desc.value = value }
+  get uncertainty() { return this.desc.uncertainty }
+  set uncertainty(value: number | undefined) { this.desc.uncertainty = value }
   get lowerUncertainty() { return this.desc.lowerUncertainty }
   set lowerUncertainty(value: number | undefined) { this.desc.lowerUncertainty = value }
   get upperUncertainty() { return this.desc.upperUncertainty }
