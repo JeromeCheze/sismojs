@@ -46,17 +46,29 @@ export class Trace {
     }
     let data = this.timeseries[0].data
     for (let i = 1; i < this.timeseries.length; i++) {
-      const gapLength = (this.timeseries[i].starttime - this.timeseries[i - 1].endtime) / 1e3
-      const nbSamples = Math.floor(gapLength * this.stats.samplingRate)
-      if (nbSamples > 0) {
-        const d = new Date()
-        d.setTime(this.timeseries[i - 1].endtime)
-        console.log(`${this.stats.id} : Warning: found gap of ${gapLength} seconds (${nbSamples}) | gap begin at ${d.toISOString()}`)
-        for (let n = 0; n < nbSamples; n++) {
-          data.push(null)
+      if (this.timeseries[i - 1].endtime > this.timeseries[i].starttime) {
+        if (this.timeseries[i].starttime > this.timeseries[i - 1].endtime) {
+          const overlapLength = (this.timeseries[i].starttime - this.timeseries[i - 1].endtime) / 1e3
+          const nbSamples = Math.floor(overlapLength * this.stats.samplingRate)
+          console.log(`${this.stats.id} : Warning: found overlap of ${overlapLength} seconds`)
+          data = data.concat(this.timeseries[i].data.slice(nbSamples))
+        } else {
+          const overlapLength = this.timeseries[i].data.length / this.stats.samplingRate
+          console.log(`${this.stats.id} : Warning: found overlap of ${overlapLength} seconds`)
         }
+      } else {
+        const gapLength = (this.timeseries[i].starttime - this.timeseries[i - 1].endtime) / 1e3
+        const nbSamples = Math.floor(gapLength * this.stats.samplingRate)
+        if (nbSamples > 0) {
+          const d = new Date()
+          d.setTime(this.timeseries[i - 1].endtime)
+          console.log(`${this.stats.id} : Warning: found gap of ${gapLength} seconds (${nbSamples}) | gap begin at ${d.toISOString()}`)
+          for (let n = 0; n < nbSamples; n++) {
+            data.push(null)
+          }
+        }
+        data = data.concat(this.timeseries[i].data)
       }
-      data = data.concat(this.timeseries[i].data)
     }
     return data
   }

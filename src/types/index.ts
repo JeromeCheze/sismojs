@@ -176,6 +176,10 @@ export type ConversionRules = {
 
 export type FDSNEventParams = Partial<{
   format: string
+  starttime: string
+  endtime: string
+  start: string
+  end: string
   minlatitude: number
   minlongitude: number
   maxlatitude: number
