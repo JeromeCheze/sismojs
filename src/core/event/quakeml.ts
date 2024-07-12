@@ -1,5 +1,4 @@
-import { processEvent } from './event'
-import type { ConversionRules, EventParameter } from '../../types'
+import type { ConversionRules } from '../../types'
 import { Event, type EventDescription } from './types'
 
 const CONVERSION_RULES: ConversionRules = {
@@ -66,17 +65,15 @@ const RESOURCE_ID_KEYS = [
   'eventParameters.event.origin.@publicID',
   'eventParameters.event.origin.earthModelID',
   'eventParameters.event.origin.methodID',
-  'eventParameters.event.origin.creationInfo.agencyID',
+  'eventParameters.event.origin.arrival.@publicID',
   'eventParameters.event.origin.arrival.pickID',
   'eventParameters.event.magnitude.@publicID',
   'eventParameters.event.magnitude.methodID',
   'eventParameters.event.magnitude.originID',
-  'eventParameters.event.magnitude.creationInfo.agencyID',
   'eventParameters.event.magnitude.stationMagnitudeContribution.stationMagnitudeID',
   'eventParameters.event.pick.@publicID',
   'eventParameters.event.pick.methodID',
   'eventParameters.event.pick.filterID',
-  'eventParameters.event.pick.creationInfo.agencyID',
   'eventParameters.event.stationMagnitude.originID',
   'eventParameters.event.stationMagnitude.@publicID',
   'eventParameters.event.stationMagnitude.amplitudeID',
