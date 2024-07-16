@@ -48,6 +48,7 @@ const CONVERSION_RULES: ConversionRules = {
     'eventParameters.event.amplitude.timeWindow.begin': parseFloat,
     'eventParameters.event.amplitude.timeWindow.end': parseFloat,
     'eventParameters.event.stationMagnitude.mag.value': parseFloat,
+    'eventParameters.event.pick.time.uncertainty': parseFloat,
     'eventParameters.event.focalMechanism.nodalPlanes.nodalPlane1.strike.value': parseFloat,
     'eventParameters.event.focalMechanism.nodalPlanes.nodalPlane1.dip.value': parseFloat,
     'eventParameters.event.focalMechanism.nodalPlanes.nodalPlane1.rake.value': parseFloat,
@@ -102,15 +103,16 @@ export const removeResourcePrefix = (id: string) => {
 const xmlNodeToJson = (x: Element, path: string, rules: ConversionRules) => {
   // path = `${path}/${toSnakeCase(x.tagName)}`
   const obj: Record<string, any> = {}
-  for (const a of x.attributes) {
-    // const key = toSnakeCase(a.name)
-    const key = `@${a.name}`
-    const currentPath = `${path}.${key}`
-    let conv = rules.conversion[currentPath]
-    if (RESOURCE_ID_KEYS.indexOf(currentPath) >= 0) {
-      conv = removeResourcePrefix
+  if (x.hasAttributes()) {
+    for (let i = 0; i < x.attributes.length; i++) {
+      const key = `@${x.attributes[i].name}`
+      const currentPath = `${path}.${key}`
+      let conv = rules.conversion[currentPath]
+      if (RESOURCE_ID_KEYS.indexOf(currentPath) >= 0) {
+        conv = removeResourcePrefix
+      }
+      obj[key] = conv ? conv(x.attributes[i].value) : x.attributes[i].value
     }
-    obj[key] = conv ? conv(a.value) : a.value
   }
   if (x.children.length === 0) {
     // console.log(path);
@@ -126,11 +128,10 @@ const xmlNodeToJson = (x: Element, path: string, rules: ConversionRules) => {
         : obj
       : value
   } else {
-    for (const c of x.children) {
-      // const key = toSnakeCase(c.tagName)
-      const key = c.tagName
+    for (let i =0; i < x.children.length; i++) {
+      const key = x.children[i].tagName
       const currentPath = `${path}.${key}`
-      const value = xmlNodeToJson(c, currentPath, rules)
+      const value = xmlNodeToJson(x.children[i], currentPath, rules)
       if (rules.nodeList.indexOf(currentPath) >= 0) { // it's a list
         if (obj[key] === undefined) {
           obj[key] = []
