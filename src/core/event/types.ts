@@ -21,6 +21,7 @@ class ResourceIdentifier {
   }
 }
 
+export type TypeCertainty = 'known' | 'suspected'
 export type EvaluationMode = 'automatic' | 'manual'
 export type EvaluationStatus = 'preliminary' | 'confirmed' | 'reviewed' | 'final' | 'rejected'
 
@@ -324,6 +325,7 @@ export class Origin extends CachedProperties {
   get region() { return this.desc.region }
   get evaluationMode() { return this.desc.evaluationMode }
   get evaluationStatus() { return this.desc.evaluationStatus }
+  set evaluationStatus(value: EvaluationStatus | undefined) { this.desc.evaluationStatus = value }
   get creationInfo() { return this.desc.creationInfo != null ? this._getCache('creationInfo') || this._setCache('creationInfo', new CreationInfo(this.desc.creationInfo)) : undefined }
   get arrival() { return this._getCache('arrival') as Arrival[] }
   addArrival(desc: ArrivalDescription) {
@@ -419,7 +421,7 @@ export interface EventDescription {
   preferredMagnitudeID?: string
   preferredFocalMechanismID?: string
   type?: string
-  typeCertainty?: string
+  typeCertainty?: TypeCertainty
   description?: EventDescriptionDescription[]
   creationInfo?: CreationInfoDescription
   origin: OriginDescription[]
@@ -454,7 +456,7 @@ export class Event extends CachedProperties {
   get type() { return this.desc.type }
   set type(value: string | undefined) { this.desc.type = value }
   get typeCertainty() { return this.desc.typeCertainty }
-  set typeCertainty(value: string | undefined) { this.desc.typeCertainty = value }
+  set typeCertainty(value: TypeCertainty | undefined) { this.desc.typeCertainty = value }
   get description() { return this.desc.description }
   get pick() { return this._getCache('pick') as Pick[] }
   get amplitude() { return this._getCache('amplitude') as Amplitude[] }
