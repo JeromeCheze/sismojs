@@ -46,15 +46,17 @@ export class Trace {
     }
     let data = this.timeseries[0].data
     for (let i = 1; i < this.timeseries.length; i++) {
-      if (this.timeseries[i - 1].endtime > this.timeseries[i].starttime) {
-        if (this.timeseries[i].starttime > this.timeseries[i - 1].endtime) {
-          const overlapLength = (this.timeseries[i].starttime - this.timeseries[i - 1].endtime) / 1e3
+      if (this.timeseries[i].starttime < this.timeseries[i - 1].endtime) {
+        if (this.timeseries[i - 1].endtime < this.timeseries[i].endtime) {
+          const overlapLength = (this.timeseries[i - 1].endtime - this.timeseries[i].starttime) / 1e3
           const nbSamples = Math.floor(overlapLength * this.stats.samplingRate)
-          console.log(`${this.stats.id} : Warning: found overlap of ${overlapLength} seconds`)
+          if (nbSamples > 0) {
+            console.log(`${this.stats.id} : Warning: found overlap of ${overlapLength} seconds (${nbSamples} samples)`)
+          }
           data = data.concat(this.timeseries[i].data.slice(nbSamples))
         } else {
           const overlapLength = this.timeseries[i].data.length / this.stats.samplingRate
-          console.log(`${this.stats.id} : Warning: found overlap of ${overlapLength} seconds`)
+          console.log(`${this.stats.id} : Warning: found overlap of ${overlapLength} seconds (all samples discarded)`)
         }
       } else {
         const gapLength = (this.timeseries[i].starttime - this.timeseries[i - 1].endtime) / 1e3
@@ -347,6 +349,7 @@ export class Stream {
           nextBloquette = 0
         } else if (blktCode === 1001) {
           // bloquette 1001 is ignored
+          console.log(`[${index}]${h.fsdh.seedId}: ignore blkt[1001]`)
           nextBloquette = dv.getUint16(index + nextBloquette + 2, byteorder)
         } else {
           throw new Error(`Unhandled bloquette type ${blktCode} (packet index : ${index})`)
