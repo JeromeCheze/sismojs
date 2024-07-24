@@ -7,19 +7,37 @@ class CachedProperties {
   _setCache(key: string, value: any) { return this._cache[key] = value }
 }
 
-class ResourceIdentifier {
-  static _instances: Record<string, any> = {}
+export class ResourceIdentifier {
+  static _mainKey: string = 'base'
+  static _instances: Record<string, Record<string, any>> = {}
   id: string | undefined
   constructor(publicID: string | undefined, obj?: any) {
     this.id = publicID
     if (publicID != null && obj != null) {
-      ResourceIdentifier._instances[publicID] = obj
+      if (ResourceIdentifier._instances[ResourceIdentifier._mainKey] == null) {
+        ResourceIdentifier._instances[ResourceIdentifier._mainKey] = {}
+      }
+      if (ResourceIdentifier._instances[ResourceIdentifier._mainKey][publicID] != null) {
+        console.warn(`(${ResourceIdentifier._mainKey}) overwrite object ${publicID}`)
+      }
+      ResourceIdentifier._instances[ResourceIdentifier._mainKey][publicID] = obj
     }
   }
+  static get mainKey() {
+    return ResourceIdentifier._mainKey
+  }
+  static set mainKey(key: string) {
+    console.log(`[ResourceIdentifier] set mainKey = ${key}`)
+    ResourceIdentifier._mainKey = key
+  }
   get referredObject() {
-    return this.id != null ? ResourceIdentifier._instances[this.id] : undefined
+    return this.id != null && ResourceIdentifier._instances[ResourceIdentifier._mainKey] != null
+      ? ResourceIdentifier._instances[ResourceIdentifier._mainKey][this.id]
+      : undefined
   }
 }
+
+console.log(ResourceIdentifier)
 
 export type TypeCertainty = 'known' | 'suspected'
 export type EvaluationMode = 'automatic' | 'manual'
