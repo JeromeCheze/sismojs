@@ -334,6 +334,7 @@ export class Origin extends CachedProperties {
   }
   get publicID() { return this.desc['@publicID'] }
   get time() { return this._getCache('time') || this._setCache('time', new TimeQuantity(this.desc.time)) }
+  set time(value: TimeQuantityDescription) { this._setCache('time', new TimeQuantity(this.desc.time = value)) }
   get longitude() { return this._getCache('longitude') || this._setCache('longitude', new RealQuantity(this.desc.longitude)) }
   get latitude() { return this._getCache('latitude') || this._setCache('latitude', new RealQuantity(this.desc.latitude)) }
   get depth() { return this._getCache('depth') || this._setCache('depth', new RealQuantity(this.desc.depth)) }
