@@ -1,5 +1,5 @@
 import type { ConversionRules } from '../../types'
-import { Event, type EventDescription } from './types'
+import { QEvent, type QEventDescription } from './types'
 
 const CONVERSION_RULES: ConversionRules = {
   nodeList: [
@@ -157,5 +157,5 @@ export const parse = (qml: XMLDocument) => {
   ).event
   console.log(events)
   // return events != null ? events.map((e: EventParameter) => processEvent(e)) : []
-  return events != null ? events.map((e: EventDescription) => new Event(e)) : []
+  return events != null ? events.map((e: QEventDescription) => new QEvent(e)) : []
 }

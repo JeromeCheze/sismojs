@@ -7,56 +7,56 @@ class CachedProperties {
   _setCache(key: string, value: any) { return this._cache[key] = value }
 }
 
-export class ResourceIdentifier {
+export class QResourceIdentifier {
   static _mainKey: string = 'base'
   static _instances: Record<string, Record<string, any>> = {}
   id: string | undefined
   constructor(publicID: string | undefined, obj?: any) {
     this.id = publicID
     if (publicID != null && obj != null) {
-      if (ResourceIdentifier._instances[ResourceIdentifier._mainKey] == null) {
-        ResourceIdentifier._instances[ResourceIdentifier._mainKey] = {}
+      if ( QResourceIdentifier._instances[ QResourceIdentifier._mainKey] == null) {
+        QResourceIdentifier._instances[ QResourceIdentifier._mainKey] = {}
       }
-      if (ResourceIdentifier._instances[ResourceIdentifier._mainKey][publicID] != null) {
-        console.warn(`(${ResourceIdentifier._mainKey}) overwrite object ${publicID}`)
+      if ( QResourceIdentifier._instances[ QResourceIdentifier._mainKey][publicID] != null) {
+        console.warn(`(${ QResourceIdentifier._mainKey}) overwrite object ${publicID}`)
       }
-      ResourceIdentifier._instances[ResourceIdentifier._mainKey][publicID] = obj
+      QResourceIdentifier._instances[ QResourceIdentifier._mainKey][publicID] = obj
     }
   }
   static get mainKey() {
-    return ResourceIdentifier._mainKey
+    return QResourceIdentifier._mainKey
   }
   static set mainKey(key: string) {
-    console.log(`[ResourceIdentifier] set mainKey = ${key}`)
-    ResourceIdentifier._mainKey = key
+    console.log(`[ QResourceIdentifier] set mainKey = ${key}`)
+    QResourceIdentifier._mainKey = key
   }
   get referredObject() {
-    return this.id != null && ResourceIdentifier._instances[ResourceIdentifier._mainKey] != null
-      ? ResourceIdentifier._instances[ResourceIdentifier._mainKey][this.id]
+    return this.id != null && QResourceIdentifier._instances[ QResourceIdentifier._mainKey] != null
+      ? QResourceIdentifier._instances[ QResourceIdentifier._mainKey][this.id]
       : undefined
   }
 }
 
-console.log(ResourceIdentifier)
+console.log( QResourceIdentifier)
 
-export type TypeCertainty = 'known' | 'suspected'
-export type EvaluationMode = 'automatic' | 'manual'
-export type EvaluationStatus = 'preliminary' | 'confirmed' | 'reviewed' | 'final' | 'rejected'
+export type QTypeCertainty = 'known' | 'suspected'
+export type QEvaluationMode = 'automatic' | 'manual'
+export type QEvaluationStatus = 'preliminary' | 'confirmed' | 'reviewed' | 'final' | 'rejected'
 
-export interface CommentDescription {
+export interface QCommentDescription {
   text: string
 }
 
-export interface TimeQuantityDescription {
+export interface QTimeQuantityDescription {
   value: string
   uncertainty?: number
   lowerUncertainty?: number
   upperUncertainty?: number
 }
 
-export class TimeQuantity {
-  desc: TimeQuantityDescription
-  constructor(desc: TimeQuantityDescription) {
+export class QTimeQuantity {
+  desc: QTimeQuantityDescription
+  constructor(desc: QTimeQuantityDescription) {
     this.desc = desc
     this.desc.value = this.object.toISOString()
   }
@@ -72,14 +72,14 @@ export class TimeQuantity {
   get pretty() { return this.value != null ? this.value.replace('T', ' ').slice(0, 19) : this.value }
 }
 
-export interface RealQuantityDescription {
+export interface QRealQuantityDescription {
   value: number
   uncertainty?: number
 }
 
-export class RealQuantity {
-  desc: RealQuantityDescription
-  constructor(desc: RealQuantityDescription) {
+export class QRealQuantity {
+  desc: QRealQuantityDescription
+  constructor(desc: QRealQuantityDescription) {
     this.desc = desc
   }
   get value() { return this.desc.value }
@@ -88,15 +88,15 @@ export class RealQuantity {
   set uncertainty(value: number | undefined) { this.desc.uncertainty = value }
 }
 
-export interface CreationInfoDescription {
+export interface QCreationInfoDescription {
   author?: string
   agencyID?: string
   creationTime?: string
 }
 
-export class CreationInfo {
-  desc: CreationInfoDescription
-  constructor(desc: CreationInfoDescription) {
+export class QCreationInfo {
+  desc: QCreationInfoDescription
+  constructor(desc: QCreationInfoDescription) {
     this.desc = desc
   }
   get author() { return this.desc.author }
@@ -107,16 +107,16 @@ export class CreationInfo {
   set creationTime(value: string | undefined) { this.desc.creationTime = value }
 }
 
-export interface WaveformIdDescription {
+export interface QWaveformIdDescription {
   '@networkCode': string
   '@stationCode': string
   '@locationCode'?: string
   '@channelCode': string
 }
 
-export class WaveformId {
-  desc: WaveformIdDescription
-  constructor(desc: WaveformIdDescription) {
+export class QWaveformId {
+  desc: QWaveformIdDescription
+  constructor(desc: QWaveformIdDescription) {
     this.desc = desc
   }
   get networkCode() { return this.desc['@networkCode'] }
@@ -128,50 +128,50 @@ export class WaveformId {
   get fdsnid() { return this.seedid.replace('..', '.--.') }
 }
 
-export type PickOnset = 'impulsive' | 'emergent' | 'undecidable'
-export type PickPolarity = 'positive' | 'negative' |  'undecidable'
+export type QPickOnset = 'impulsive' | 'emergent' | 'undecidable'
+export type QPickPolarity = 'positive' | 'negative' |  'undecidable'
 
-export interface PickDescription {
+export interface QPickDescription {
   '@publicID': string
-  time: TimeQuantityDescription
-  waveformID: WaveformIdDescription
+  time: QTimeQuantityDescription
+  waveformID: QWaveformIdDescription
   filterID?: string
   methodID?: string
-  evaluationMode: EvaluationMode
-  onset?: PickOnset
+  evaluationMode: QEvaluationMode
+  onset?: QPickOnset
   phaseHint: string
-  polarity?: PickPolarity
-  creationInfo?: CreationInfoDescription
+  polarity?: QPickPolarity
+  creationInfo?: QCreationInfoDescription
 }
 
-export class Pick extends CachedProperties {
-  desc: PickDescription
-  id: ResourceIdentifier
-  constructor (desc: PickDescription) {
+export class QPick extends CachedProperties {
+  desc: QPickDescription
+  id: QResourceIdentifier
+  constructor (desc: QPickDescription) {
     super()
     this.desc = desc
-    this.id = new ResourceIdentifier(this.desc['@publicID'], this)
+    this.id = new QResourceIdentifier(this.desc['@publicID'], this)
   }
   get publicID() { return this.desc['@publicID'] }
-  get time() { return this._getCache('time') || this._setCache('time', new TimeQuantity(this.desc.time)) }
-  get waveformID() { return this._getCache('waveformID') || this._setCache('waveformID', new WaveformId(this.desc.waveformID)) }
+  get time() { return this._getCache('time') || this._setCache('time', new QTimeQuantity(this.desc.time)) }
+  get waveformID() { return this._getCache('waveformID') || this._setCache('waveformID', new QWaveformId(this.desc.waveformID)) }
   get filterID() { return this.desc.filterID }
   set filterID(value: string | undefined) { this.desc.filterID = value }
   get methodID() { return this.desc.methodID }
   set methodID(value: string | undefined) { this.desc.methodID = value }
   get onset() { return this.desc.onset }
-  set onset(value: PickOnset | undefined) { this.desc.onset = value }
+  set onset(value: QPickOnset | undefined) { this.desc.onset = value }
   get phaseHint() { return this.desc.phaseHint }
   set phaseHint(value: string) { this.desc.phaseHint = value }
   get polarity() { return this.desc.polarity }
-  set polarity(value: PickPolarity | undefined) { this.desc.polarity = value }
+  set polarity(value: QPickPolarity | undefined) { this.desc.polarity = value }
   get evaluationMode() { return this.desc.evaluationMode }
-  set evaluationMode(value: EvaluationMode) { this.desc.evaluationMode = value }
-  get creationInfo() { return this.desc.creationInfo != null ? this._getCache('creationInfo') || this._setCache('creationInfo', new CreationInfo(this.desc.creationInfo)) : undefined }
-  set creationInfo(value: CreationInfoDescription) { this._setCache('creationInfo', new CreationInfo(this.desc.creationInfo = value)) }
+  set evaluationMode(value: QEvaluationMode) { this.desc.evaluationMode = value }
+  get creationInfo() { return this.desc.creationInfo != null ? this._getCache('creationInfo') || this._setCache('creationInfo', new QCreationInfo(this.desc.creationInfo)) : undefined }
+  set creationInfo(value: QCreationInfoDescription) { this._setCache('creationInfo', new QCreationInfo(this.desc.creationInfo = value)) }
 }
 
-export interface ArrivalDescription {
+export interface QArrivalDescription {
   '@publicID': string
   pickID: string
   phase: string
@@ -182,16 +182,16 @@ export interface ArrivalDescription {
   timeWeight?: number
 }
 
-export class Arrival extends CachedProperties {
-  desc: ArrivalDescription
-  id: ResourceIdentifier
-  constructor(desc: ArrivalDescription) {
+export class QArrival extends CachedProperties {
+  desc: QArrivalDescription
+  id: QResourceIdentifier
+  constructor(desc: QArrivalDescription) {
     super()
     this.desc = desc
-    this.id = new ResourceIdentifier(desc['@publicID'], this)
+    this.id = new QResourceIdentifier(desc['@publicID'], this)
   }
   get publicID() { return this.desc['@publicID'] }
-  get pickID() { return this._getCache('pickID') || this._setCache('pickID', new ResourceIdentifier(this.desc.pickID)) }
+  get pickID() { return this._getCache('pickID') || this._setCache('pickID', new QResourceIdentifier(this.desc.pickID)) }
   get phase() { return this.desc.phase }
   get azimuth() { return this.desc.azimuth }
   set azimuth(value: number | undefined) { this.desc.azimuth = value }
@@ -205,96 +205,96 @@ export class Arrival extends CachedProperties {
   set timeWeight(value: number | undefined) { this.desc.timeWeight = value }
 }
 
-export interface AmplitudeDescription {
+export interface QAmplitudeDescription {
   '@publicID': string
   genericAmplitude: number
   pickID: string
-  waveformID: WaveformIdDescription
+  waveformID: QWaveformIdDescription
 }
 
-export class Amplitude extends CachedProperties {
-  desc: AmplitudeDescription
-  id: ResourceIdentifier
-  constructor(desc: AmplitudeDescription) {
+export class QAmplitude extends CachedProperties {
+  desc: QAmplitudeDescription
+  id: QResourceIdentifier
+  constructor(desc: QAmplitudeDescription) {
     super()
     this.desc = desc
-    this.id = new ResourceIdentifier(desc['@publicID'], this)
+    this.id = new QResourceIdentifier(desc['@publicID'], this)
   }
   get publicID() { return this.desc['@publicID'] }
-  get pickID() { return this._getCache('pickID') || this._setCache('pickID', new ResourceIdentifier(this.desc.pickID)) }
-  get waveformID() { return this._getCache('waveformID') || this._setCache('waveformID', new WaveformId(this.desc.waveformID)) }
+  get pickID() { return this._getCache('pickID') || this._setCache('pickID', new QResourceIdentifier(this.desc.pickID)) }
+  get waveformID() { return this._getCache('waveformID') || this._setCache('waveformID', new QWaveformId(this.desc.waveformID)) }
 }
 
-export interface StationMagnitudeDescription {
+export interface QStationMagnitudeDescription {
   '@publicID': string
   originID: string
   mag: number
   amplitudeID: string
-  waveformID: WaveformIdDescription
+  waveformID: QWaveformIdDescription
 }
 
-export class StationMagnitude extends CachedProperties {
-  desc: StationMagnitudeDescription
-  id: ResourceIdentifier
-  constructor(desc: StationMagnitudeDescription) {
+export class QStationMagnitude extends CachedProperties {
+  desc: QStationMagnitudeDescription
+  id: QResourceIdentifier
+  constructor(desc: QStationMagnitudeDescription) {
     super()
     this.desc = desc
-    this.id = new ResourceIdentifier(desc['@publicID'], this)
+    this.id = new QResourceIdentifier(desc['@publicID'], this)
   }
   get publicID() { return this.desc['@publicID'] }
-  get originID() { return this._getCache('originID') || this._setCache('originID', new ResourceIdentifier(this.desc.originID)) }
+  get originID() { return this._getCache('originID') || this._setCache('originID', new QResourceIdentifier(this.desc.originID)) }
   get mag() { return this.desc.mag }
-  get amplitudeID() { return this._getCache('amplitudeID') || this._setCache('amplitudeID', new ResourceIdentifier(this.desc.amplitudeID)) }
-  get waveformID() { return this._getCache('waveformID') || this._setCache('waveformID', new WaveformId(this.desc.waveformID)) }
+  get amplitudeID() { return this._getCache('amplitudeID') || this._setCache('amplitudeID', new QResourceIdentifier(this.desc.amplitudeID)) }
+  get waveformID() { return this._getCache('waveformID') || this._setCache('waveformID', new QWaveformId(this.desc.waveformID)) }
 }
 
-export interface StationMagnitudeContributionDescription {
+export interface QStationMagnitudeContributionDescription {
   stationMagnitudeID: string
   residual: number
   weight: number
 }
 
-export class StationMagnitudeContribution extends CachedProperties {
-  desc: StationMagnitudeContributionDescription
-  constructor(desc: StationMagnitudeContributionDescription) {
+export class QStationMagnitudeContribution extends CachedProperties {
+  desc: QStationMagnitudeContributionDescription
+  constructor(desc: QStationMagnitudeContributionDescription) {
     super()
     this.desc = desc
   }
-  get stationMagnitudeID() { return this._getCache('stationMagnitudeID') || this._setCache('stationMagnitudeID', new ResourceIdentifier(this.desc.stationMagnitudeID)) }
+  get stationMagnitudeID() { return this._getCache('stationMagnitudeID') || this._setCache('stationMagnitudeID', new QResourceIdentifier(this.desc.stationMagnitudeID)) }
   get residual() { return this.desc.residual }
   get weight() { return this.desc.weight }
 }
 
-export interface MagnitudeDescription {
+export interface QMagnitudeDescription {
   '@publicID': string
-  mag: RealQuantityDescription
+  mag: QRealQuantityDescription
   type: string
   originID?: string
   methodID?: string
   stationCount?: number
-  stationMagnitudeContribution?: StationMagnitudeContributionDescription[]
-  creationInfo?: CreationInfoDescription
+  stationMagnitudeContribution?: QStationMagnitudeContributionDescription[]
+  creationInfo?: QCreationInfoDescription
 }
 
-export class Magnitude extends CachedProperties {
-  desc: MagnitudeDescription
-  id: ResourceIdentifier
-  constructor(desc: MagnitudeDescription) {
+export class QMagnitude extends CachedProperties {
+  desc: QMagnitudeDescription
+  id: QResourceIdentifier
+  constructor(desc: QMagnitudeDescription) {
     super()
     this.desc = desc
-    this.id = new ResourceIdentifier(desc['@publicID'], this)
+    this.id = new QResourceIdentifier(desc['@publicID'], this)
   }
   get publicID() { return this.desc['@publicID'] }
   get mag() { return this.desc.mag }
   get type() { return this.desc.type }
-  get originID() { return this._getCache('originID') || this._setCache('originID', new ResourceIdentifier(this.desc.originID)) }
+  get originID() { return this._getCache('originID') || this._setCache('originID', new QResourceIdentifier(this.desc.originID)) }
   get methodID() { return this.desc.methodID }
   get stationCount() { return this.desc.stationCount }
-  get stationMagnitudeContribution() { return this.desc.stationMagnitudeContribution != null ? this._getCache('stationMagnitudeContribution') || this._setCache('stationMagnitudeContribution', this.desc.stationMagnitudeContribution.map(x => new StationMagnitudeContribution(x))) : undefined }
-  get creationInfo() { return this.desc.creationInfo != null ? this._getCache('creationInfo') || this._setCache('creationInfo', new CreationInfo(this.desc.creationInfo)) : undefined }
+  get stationMagnitudeContribution() { return this.desc.stationMagnitudeContribution != null ? this._getCache('stationMagnitudeContribution') || this._setCache('stationMagnitudeContribution', this.desc.stationMagnitudeContribution.map(x => new QStationMagnitudeContribution(x))) : undefined }
+  get creationInfo() { return this.desc.creationInfo != null ? this._getCache('creationInfo') || this._setCache('creationInfo', new QCreationInfo(this.desc.creationInfo)) : undefined }
 }
 
-export interface OriginQualityDescription {
+export interface QOriginQualityDescription {
   associatedPhaseCount?: number
   usedPhaseCount?: number
   associatedStationCount?: number
@@ -304,59 +304,59 @@ export interface OriginQualityDescription {
   minimumDistance?: number
 }
 
-export interface OriginDescription {
+export interface QOriginDescription {
   '@publicID': string
-  time: TimeQuantityDescription
-  longitude: RealQuantityDescription
-  latitude: RealQuantityDescription
-  depth: RealQuantityDescription
+  time: QTimeQuantityDescription
+  longitude: QRealQuantityDescription
+  latitude: QRealQuantityDescription
+  depth: QRealQuantityDescription
   methodID?: string
   earthModelID?: string
-  quality?: OriginQualityDescription
+  quality?: QOriginQualityDescription
   region?: string
-  evaluationMode?: EvaluationMode
-  evaluationStatus?: EvaluationStatus
-  creationInfo?: CreationInfoDescription
-  arrival: ArrivalDescription[]
+  evaluationMode?: QEvaluationMode
+  evaluationStatus?: QEvaluationStatus
+  creationInfo?: QCreationInfoDescription
+  arrival: QArrivalDescription[]
 }
 
-export class Origin extends CachedProperties {
-  desc: OriginDescription
-  id: ResourceIdentifier
-  constructor(desc: OriginDescription) {
+export class QOrigin extends CachedProperties {
+  desc: QOriginDescription
+  id: QResourceIdentifier
+  constructor(desc: QOriginDescription) {
     super()
     this.desc = desc
-    this.id = new ResourceIdentifier(desc['@publicID'], this)
+    this.id = new QResourceIdentifier(desc['@publicID'], this)
     if (desc.arrival == null) {
       desc.arrival = []
     }
-    this._setCache('arrival', this.desc.arrival.map(x => new Arrival(x)))
+    this._setCache('arrival', this.desc.arrival.map(x => new QArrival(x)))
   }
   get publicID() { return this.desc['@publicID'] }
-  get time() { return this._getCache('time') || this._setCache('time', new TimeQuantity(this.desc.time)) }
-  get longitude() { return this._getCache('longitude') || this._setCache('longitude', new RealQuantity(this.desc.longitude)) }
-  get latitude() { return this._getCache('latitude') || this._setCache('latitude', new RealQuantity(this.desc.latitude)) }
-  get depth() { return this._getCache('depth') || this._setCache('depth', new RealQuantity(this.desc.depth)) }
+  get time() { return this._getCache('time') || this._setCache('time', new QTimeQuantity(this.desc.time)) }
+  get longitude() { return this._getCache('longitude') || this._setCache('longitude', new QRealQuantity(this.desc.longitude)) }
+  get latitude() { return this._getCache('latitude') || this._setCache('latitude', new QRealQuantity(this.desc.latitude)) }
+  get depth() { return this._getCache('depth') || this._setCache('depth', new QRealQuantity(this.desc.depth)) }
   get methodID() { return this.desc.methodID }
   get earthModelID() { return this.desc.earthModelID }
   get quality() { return this.desc.quality }
   get region() { return this.desc.region }
   get evaluationMode() { return this.desc.evaluationMode }
   get evaluationStatus() { return this.desc.evaluationStatus }
-  set evaluationStatus(value: EvaluationStatus | undefined) { this.desc.evaluationStatus = value }
-  get creationInfo() { return this.desc.creationInfo != null ? this._getCache('creationInfo') || this._setCache('creationInfo', new CreationInfo(this.desc.creationInfo)) : undefined }
-  get arrival() { return this._getCache('arrival') as Arrival[] }
-  setTime(desc: TimeQuantityDescription) {
-    this._setCache('time', new TimeQuantity(this.desc.time = desc))
+  set evaluationStatus(value: QEvaluationStatus | undefined) { this.desc.evaluationStatus = value }
+  get creationInfo() { return this.desc.creationInfo != null ? this._getCache('creationInfo') || this._setCache('creationInfo', new QCreationInfo(this.desc.creationInfo)) : undefined }
+  get arrival() { return this._getCache('arrival') as QArrival[] }
+  setTime(desc: QTimeQuantityDescription) {
+    this._setCache('time', new QTimeQuantity(this.desc.time = desc))
   }
-  addArrival(desc: ArrivalDescription) {
+  addArrival(desc: QArrivalDescription) {
     console.log('add arrival', desc.pickID)
     this.desc.arrival.push(desc)
-    const arrival = new Arrival(desc)
+    const arrival = new QArrival(desc)
     this.arrival.push(arrival)
     return arrival
   }
-  deleteArrival(arrival: Arrival) {
+  deleteArrival(arrival: QArrival) {
     console.log('delete arrival', arrival.pickID.id)
     const foundArrival = this.arrival.find(x => x.pickID.id === arrival.pickID.id)
     if (foundArrival != null) {
@@ -369,134 +369,134 @@ export class Origin extends CachedProperties {
   }
 }
 
-export interface NodalPlaneDescription {
-  strike: RealQuantityDescription
-  dip: RealQuantityDescription
-  rake: RealQuantityDescription
+export interface QNodalPlaneDescription {
+  strike: QRealQuantityDescription
+  dip: QRealQuantityDescription
+  rake: QRealQuantityDescription
 }
 
-export class NodalPlane extends CachedProperties {
-  desc: NodalPlaneDescription
-  constructor(desc: NodalPlaneDescription) {
+export class QNodalPlane extends CachedProperties {
+  desc: QNodalPlaneDescription
+  constructor(desc: QNodalPlaneDescription) {
     super()
     this.desc = desc
   }
-  get strike() { return this._getCache('strike') || this._setCache('strike', new RealQuantity(this.desc.strike)) }
-  set strike(value: RealQuantityDescription) { this._setCache('strike', new RealQuantity(this.desc.strike = value)) }
-  get dip() { return this._getCache('dip') || this._setCache('dip', new RealQuantity(this.desc.dip)) }
-  set dip(value: RealQuantityDescription) { this._setCache('dip', new RealQuantity(this.desc.dip = value)) }
-  get rake() { return this._getCache('rake') || this._setCache('rake', new RealQuantity(this.desc.rake)) }
-  set rake(value: RealQuantityDescription) { this._setCache('rake', new RealQuantity(this.desc.rake = value)) }
+  get strike() { return this._getCache('strike') || this._setCache('strike', new QRealQuantity(this.desc.strike)) }
+  set strike(value: QRealQuantityDescription) { this._setCache('strike', new QRealQuantity(this.desc.strike = value)) }
+  get dip() { return this._getCache('dip') || this._setCache('dip', new QRealQuantity(this.desc.dip)) }
+  set dip(value: QRealQuantityDescription) { this._setCache('dip', new QRealQuantity(this.desc.dip = value)) }
+  get rake() { return this._getCache('rake') || this._setCache('rake', new QRealQuantity(this.desc.rake)) }
+  set rake(value: QRealQuantityDescription) { this._setCache('rake', new QRealQuantity(this.desc.rake = value)) }
 }
 
-export interface NodalPlanesDescription {
-  nodalPlane1: NodalPlaneDescription
-  nodalPlane2?: NodalPlaneDescription
+export interface QNodalPlanesDescription {
+  nodalPlane1: QNodalPlaneDescription
+  nodalPlane2?: QNodalPlaneDescription
 }
 
-export class NodalPlanes extends CachedProperties {
-  desc: NodalPlanesDescription
-  constructor(desc: NodalPlanesDescription) {
+export class QNodalPlanes extends CachedProperties {
+  desc: QNodalPlanesDescription
+  constructor(desc: QNodalPlanesDescription) {
     super()
     this.desc = desc
   }
-  get nodalPlane1() { return this._getCache('nodalPlane1') || this._setCache('nodalPlane1', new NodalPlane(this.desc.nodalPlane1)) }
-  set nodalPlane1(value: NodalPlaneDescription) { this._setCache('nodalPlane1', new NodalPlane(this.desc.nodalPlane1 = value)) }
-  get nodalPlane2() { return this.desc.nodalPlane2 != null ? this._getCache('nodalPlane2') || this._setCache('nodalPlane2', new NodalPlane(this.desc.nodalPlane2)) : undefined }
-  set nodalPlane2(value: NodalPlaneDescription | undefined) { value != null ? this._setCache('nodalPlane2', new NodalPlane(this.desc.nodalPlane2 = value)) : this._setCache('nodalPlane2', this.desc.nodalPlane2 = value) }
+  get nodalPlane1() { return this._getCache('nodalPlane1') || this._setCache('nodalPlane1', new QNodalPlane(this.desc.nodalPlane1)) }
+  set nodalPlane1(value: QNodalPlaneDescription) { this._setCache('nodalPlane1', new QNodalPlane(this.desc.nodalPlane1 = value)) }
+  get nodalPlane2() { return this.desc.nodalPlane2 != null ? this._getCache('nodalPlane2') || this._setCache('nodalPlane2', new QNodalPlane(this.desc.nodalPlane2)) : undefined }
+  set nodalPlane2(value: QNodalPlaneDescription | undefined) { value != null ? this._setCache('nodalPlane2', new QNodalPlane(this.desc.nodalPlane2 = value)) : this._setCache('nodalPlane2', this.desc.nodalPlane2 = value) }
 }
 
-export interface FocalMechanismDescription {
+export interface QFocalMechanismDescription {
   '@publicID': string
   triggeringOriginID: string
-  nodalPlanes: NodalPlanesDescription
+  nodalPlanes: QNodalPlanesDescription
   stationPolarityCount?: number
-  evaluationMode?: EvaluationMode
-  comment?: CommentDescription[]
+  evaluationMode?: QEvaluationMode
+  comment?: QCommentDescription[]
 }
 
-export class FocalMechanism extends CachedProperties {
-  desc: FocalMechanismDescription
-  id: ResourceIdentifier
-  constructor(desc: FocalMechanismDescription) {
+export class QFocalMechanism extends CachedProperties {
+  desc: QFocalMechanismDescription
+  id: QResourceIdentifier
+  constructor(desc: QFocalMechanismDescription) {
     super()
     this.desc = desc
-    this.id = new ResourceIdentifier(desc['@publicID'], this)
+    this.id = new QResourceIdentifier(desc['@publicID'], this)
   }
   get publicID() { return this.desc['@publicID'] }
-  get triggeringOriginID() { return this._getCache('triggeringOriginID') || this._setCache('triggeringOriginID', new ResourceIdentifier(this.desc.triggeringOriginID)) }
-  get nodalPlanes() { return this._getCache('nodalPlanes') || this._setCache('nodalPlanes', new NodalPlanes(this.desc.nodalPlanes)) }
+  get triggeringOriginID() { return this._getCache('triggeringOriginID') || this._setCache('triggeringOriginID', new QResourceIdentifier(this.desc.triggeringOriginID)) }
+  get nodalPlanes() { return this._getCache('nodalPlanes') || this._setCache('nodalPlanes', new QNodalPlanes(this.desc.nodalPlanes)) }
   get stationPolarityCount() { return this.desc.stationPolarityCount }
   get evaluationMode() { return this.desc.evaluationMode }
   get comment() { return this.desc.comment }
 }
 
-export interface EventDescriptionDescription {
+export interface QEventDescriptionDescription {
   text: string
   type?: 'felt report' | 'Flinn-Engdahl region' | 'local time' | 'tectonic summary' | 'nearest cities' | 'earthquake name' | 'region name'
 }
 
-export interface EventDescription {
+export interface QEventDescription {
   '@publicID': string
   preferredOriginID?: string
   preferredMagnitudeID?: string
   preferredFocalMechanismID?: string
   type?: string
-  typeCertainty?: TypeCertainty
-  description?: EventDescriptionDescription[]
-  creationInfo?: CreationInfoDescription
-  origin: OriginDescription[]
-  magnitude: MagnitudeDescription[]
-  stationMagnitude: StationMagnitudeDescription[]
-  pick: PickDescription[]
-  focalMechanism: FocalMechanismDescription[]
-  amplitude: AmplitudeDescription[]
+  typeCertainty?: QTypeCertainty
+  description?: QEventDescriptionDescription[]
+  creationInfo?: QCreationInfoDescription
+  origin: QOriginDescription[]
+  magnitude: QMagnitudeDescription[]
+  stationMagnitude: QStationMagnitudeDescription[]
+  pick: QPickDescription[]
+  focalMechanism: QFocalMechanismDescription[]
+  amplitude: QAmplitudeDescription[]
 }
 
-export class Event extends CachedProperties {
-  desc: EventDescription
-  id: ResourceIdentifier
-  constructor(desc: EventDescription) {
+export class QEvent extends CachedProperties {
+  desc: QEventDescription
+  id: QResourceIdentifier
+  constructor(desc: QEventDescription) {
     super()
     this.desc = Object.assign({ origin: [], magnitude: [], stationMagnitude: [], amplitude: [], focalMechanism: [], pick: [] }, desc)
-    this.id = new ResourceIdentifier(desc['@publicID'], this)
-    this._setCache('pick', this.desc.pick.map(x => new Pick(x)))
-    this._setCache('amplitude', this.desc.amplitude.map(x => new Amplitude(x)))
-    this._setCache('origin', this.desc.origin.map(x => new Origin(x)))
-    this._setCache('stationMagnitude', this.desc.stationMagnitude.map(x => new StationMagnitude(x)))
-    this._setCache('magnitude', this.desc.magnitude.map(x => new Magnitude(x)))
-    this._setCache('focalMechanism', this.desc.focalMechanism.map(x => new FocalMechanism(x)))
-    this._setCache('preferredOriginID', new ResourceIdentifier(this.desc.preferredOriginID))
-    this._setCache('preferredMagnitudeID', new ResourceIdentifier(this.desc.preferredMagnitudeID))
-    this._setCache('preferredFocalMechanismID', new ResourceIdentifier(this.desc.preferredFocalMechanismID))
+    this.id = new QResourceIdentifier(desc['@publicID'], this)
+    this._setCache('pick', this.desc.pick.map(x => new QPick(x)))
+    this._setCache('amplitude', this.desc.amplitude.map(x => new QAmplitude(x)))
+    this._setCache('origin', this.desc.origin.map(x => new QOrigin(x)))
+    this._setCache('stationMagnitude', this.desc.stationMagnitude.map(x => new QStationMagnitude(x)))
+    this._setCache('magnitude', this.desc.magnitude.map(x => new QMagnitude(x)))
+    this._setCache('focalMechanism', this.desc.focalMechanism.map(x => new QFocalMechanism(x)))
+    this._setCache('preferredOriginID', new QResourceIdentifier(this.desc.preferredOriginID))
+    this._setCache('preferredMagnitudeID', new QResourceIdentifier(this.desc.preferredMagnitudeID))
+    this._setCache('preferredFocalMechanismID', new QResourceIdentifier(this.desc.preferredFocalMechanismID))
   }
   get publicID() { return this.desc['@publicID'] }
-  get preferredOriginID(): ResourceIdentifier { return this._getCache('preferredOriginID') }
-  get preferredMagnitudeID(): ResourceIdentifier { return this._getCache('preferredMagnitudeID') }
-  get preferredFocalMechanismID(): ResourceIdentifier { return this._getCache('preferredFocalMechanismID') }
+  get preferredOriginID(): QResourceIdentifier { return this._getCache('preferredOriginID') }
+  get preferredMagnitudeID(): QResourceIdentifier { return this._getCache('preferredMagnitudeID') }
+  get preferredFocalMechanismID(): QResourceIdentifier { return this._getCache('preferredFocalMechanismID') }
   get type() { return this.desc.type }
   set type(value: string | undefined) { this.desc.type = value }
   get typeCertainty() { return this.desc.typeCertainty }
-  set typeCertainty(value: TypeCertainty | undefined) { this.desc.typeCertainty = value }
+  set typeCertainty(value: QTypeCertainty | undefined) { this.desc.typeCertainty = value }
   get description() { return this.desc.description }
-  get pick() { return this._getCache('pick') as Pick[] }
-  get amplitude() { return this._getCache('amplitude') as Amplitude[] }
-  get creationInfo() { return this.desc.creationInfo != null ? this._getCache('creationInfo') || this._setCache('creationInfo', new CreationInfo(this.desc.creationInfo)) : undefined }
-  get origin() { return this._getCache('origin') as Origin[] }
-  get magnitude() { return this._getCache('magnitude') as Magnitude[] }
-  get stationMagnitude() { return this._getCache('stationMagnitude') as StationMagnitude[] }
-  get focalMechanism() { return this._getCache('focalMechanism') as FocalMechanism[] }
-  setPreferredOriginID(value: string | undefined) { this._setCache('preferredOriginID', new ResourceIdentifier(this.desc.preferredOriginID = value)) }
-  setPreferredMagnitudeID(value: string | undefined) { this._setCache('preferredMagnitudeID', new ResourceIdentifier(this.desc.preferredMagnitudeID = value)) }
-  setPreferredFocalMechanismID(value: string | undefined) { this._setCache('preferredFocalMechanismID', new ResourceIdentifier(this.desc.preferredFocalMechanismID = value)) }
-  addPick(desc: PickDescription) {
+  get pick() { return this._getCache('pick') as QPick[] }
+  get amplitude() { return this._getCache('amplitude') as QAmplitude[] }
+  get creationInfo() { return this.desc.creationInfo != null ? this._getCache('creationInfo') || this._setCache('creationInfo', new QCreationInfo(this.desc.creationInfo)) : undefined }
+  get origin() { return this._getCache('origin') as QOrigin[] }
+  get magnitude() { return this._getCache('magnitude') as QMagnitude[] }
+  get stationMagnitude() { return this._getCache('stationMagnitude') as QStationMagnitude[] }
+  get focalMechanism() { return this._getCache('focalMechanism') as QFocalMechanism[] }
+  setPreferredOriginID(value: string | undefined) { this._setCache('preferredOriginID', new QResourceIdentifier(this.desc.preferredOriginID = value)) }
+  setPreferredMagnitudeID(value: string | undefined) { this._setCache('preferredMagnitudeID', new QResourceIdentifier(this.desc.preferredMagnitudeID = value)) }
+  setPreferredFocalMechanismID(value: string | undefined) { this._setCache('preferredFocalMechanismID', new QResourceIdentifier(this.desc.preferredFocalMechanismID = value)) }
+  addPick(desc: QPickDescription) {
     console.log('add pick', desc['@publicID'])
     this.desc.pick.push(desc)
-    const pick = new Pick(desc)
+    const pick = new QPick(desc)
     this.pick.push(pick)
     return pick
   }
-  deletePick(pick: Pick) {
+  deletePick(pick: QPick) {
     console.log('delete pick', pick.publicID)
     const foundPick = this.pick.find(x => x.publicID === pick.publicID)
     if (foundPick != null) {
@@ -507,33 +507,33 @@ export class Event extends CachedProperties {
       this.desc.pick.splice(this.desc.pick.indexOf(pickDesc), 1)
     }
   }
-  addAmplitude(desc: AmplitudeDescription) {
+  addAmplitude(desc: QAmplitudeDescription) {
     this.desc.amplitude.push(desc)
-    const amplitude = new Amplitude(desc)
+    const amplitude = new QAmplitude(desc)
     this.amplitude.push(amplitude)
     return amplitude
   }
-  addOrigin(desc: OriginDescription) {
+  addOrigin(desc: QOriginDescription) {
     this.desc.origin.push(desc)
-    const origin = new Origin(desc)
+    const origin = new QOrigin(desc)
     this.origin.push(origin)
     return origin
   }
-  addMagnitude(desc: MagnitudeDescription) {
+  addMagnitude(desc: QMagnitudeDescription) {
     this.desc.magnitude.push(desc)
-    const magnitude = new Magnitude(desc)
+    const magnitude = new QMagnitude(desc)
     this.magnitude.push(magnitude)
     return magnitude
   }
-  addStationMagnitude(desc: StationMagnitudeDescription) {
+  addStationMagnitude(desc: QStationMagnitudeDescription) {
     this.desc.stationMagnitude.push(desc)
-    const staMag = new StationMagnitude(desc)
+    const staMag = new QStationMagnitude(desc)
     this.stationMagnitude.push(staMag)
     return staMag
   }
-  addFocalMechanism(desc: FocalMechanismDescription) {
+  addFocalMechanism(desc: QFocalMechanismDescription) {
     this.desc.focalMechanism.push(desc)
-    const focalMechanism = new FocalMechanism(desc)
+    const focalMechanism = new QFocalMechanism(desc)
     this.focalMechanism.push(focalMechanism)
     return focalMechanism
   }
