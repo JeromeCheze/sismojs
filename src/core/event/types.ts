@@ -411,6 +411,9 @@ export interface QFocalMechanismDescription {
   triggeringOriginID: string
   nodalPlanes: QNodalPlanesDescription
   stationPolarityCount?: number
+  misfit?: number
+  methodID?: string
+  stationDistributionRatio?: number
   evaluationMode?: QEvaluationMode
   comment?: QCommentDescription[]
 }
@@ -428,6 +431,9 @@ export class QFocalMechanism extends CachedProperties {
   get nodalPlanes() { return this._getCache('nodalPlanes') || this._setCache('nodalPlanes', new QNodalPlanes(this.desc.nodalPlanes)) }
   get stationPolarityCount() { return this.desc.stationPolarityCount }
   get evaluationMode() { return this.desc.evaluationMode }
+  get misfit() { return this.desc.misfit }
+  get methodID() { return this.desc.methodID }
+  get stationDistributionRatio() { return this.desc.stationDistributionRatio }
   get comment() { return this.desc.comment }
 }
 
@@ -536,5 +542,9 @@ export class QEvent extends CachedProperties {
     const focalMechanism = new QFocalMechanism(desc)
     this.focalMechanism.push(focalMechanism)
     return focalMechanism
+  }
+  clearFocalMechanism() {
+    this.desc.focalMechanism = []
+    this._setCache('focalMechanism', this.desc.focalMechanism.map(x => new QFocalMechanism(x)))
   }
 }

@@ -49,6 +49,9 @@ const CONVERSION_RULES: ConversionRules = {
     'eventParameters.event.amplitude.timeWindow.end': parseFloat,
     'eventParameters.event.stationMagnitude.mag.value': parseFloat,
     'eventParameters.event.pick.time.uncertainty': parseFloat,
+    'eventParameters.event.focalMechanism.misfit': parseFloat,
+    'eventParameters.event.focalMechanism.stationPolarityCount': parseFloat,
+    'eventParameters.event.focalMechanism.stationDistributionRatio': parseFloat,
     'eventParameters.event.focalMechanism.nodalPlanes.nodalPlane1.strike.value': parseFloat,
     'eventParameters.event.focalMechanism.nodalPlanes.nodalPlane1.dip.value': parseFloat,
     'eventParameters.event.focalMechanism.nodalPlanes.nodalPlane1.rake.value': parseFloat,
@@ -83,6 +86,7 @@ const RESOURCE_ID_KEYS = [
   'eventParameters.event.amplitude.methodID',
   'eventParameters.event.amplitude.pickID',
   'eventParameters.event.focalMechanism.@publicID',
+  'eventParameters.event.focalMechanism.methodID',
   'eventParameters.event.focalMechanism.triggeringOriginID'
 ]
 
