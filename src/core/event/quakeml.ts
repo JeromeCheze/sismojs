@@ -99,7 +99,7 @@ export const removeResourcePrefix = (id: string) => {
     return id.replace('smi:org.gfz-potsdam.de/geofon/', '')
   } else if (id.indexOf('smi:') === 0 || id.indexOf('quakeml:') === 0) {
     const sp = id.split('/')
-    const result = sp.length > 2 ? sp.slice(2).join('/') : sp.slice(-1)[0]
+    const result = sp.length > 2 ? sp.slice(-2).join('/') : sp.slice(-1)[0]
     if (result !== '') {
       return result
     }
