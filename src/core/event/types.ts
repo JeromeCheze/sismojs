@@ -187,10 +187,12 @@ export interface QArrivalDescription {
 export class QArrival extends CachedProperties {
   desc: QArrivalDescription
   id: QResourceIdentifier
-  constructor(desc: QArrivalDescription) {
+  parent: QResourceIdentifier
+  constructor(desc: QArrivalDescription, parent: QResourceIdentifier) {
     super()
     this.desc = desc
     this.id = new QResourceIdentifier(desc['@publicID'], this)
+    this.parent = parent
   }
   get publicID() { return this.desc['@publicID'] }
   get pickID() { return this._getCache('pickID') || this._setCache('pickID', new QResourceIdentifier(this.desc.pickID)) }
@@ -339,7 +341,7 @@ export class QOrigin extends CachedProperties {
     if (desc.arrival == null) {
       desc.arrival = []
     }
-    this._setCache('arrival', this.desc.arrival.map(x => new QArrival(x)))
+    this._setCache('arrival', this.desc.arrival.map(x => new QArrival(x, this.id)))
     this.parent = parent
   }
   get publicID() { return this.desc['@publicID'] }
@@ -362,7 +364,7 @@ export class QOrigin extends CachedProperties {
   addArrival(desc: QArrivalDescription) {
     console.log('add arrival', desc.pickID)
     this.desc.arrival.push(desc)
-    const arrival = new QArrival(desc)
+    const arrival = new QArrival(desc, this.id)
     this.arrival.push(arrival)
     return arrival
   }
