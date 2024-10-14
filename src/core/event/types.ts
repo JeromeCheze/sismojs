@@ -27,7 +27,7 @@ export class QResourceIdentifier {
     return QResourceIdentifier._mainKey
   }
   static set mainKey(key: string) {
-    console.log(`[ QResourceIdentifier] set mainKey = ${key}`)
+    console.log(`[QResourceIdentifier] set mainKey = ${key}`)
     QResourceIdentifier._mainKey = key
   }
   get referredObject() {
@@ -37,7 +37,7 @@ export class QResourceIdentifier {
   }
 }
 
-console.log( QResourceIdentifier)
+// console.log(QResourceIdentifier)
 
 export type QTypeCertainty = 'known' | 'suspected'
 export type QEvaluationMode = 'automatic' | 'manual'
@@ -362,14 +362,14 @@ export class QOrigin extends CachedProperties {
     this._setCache('time', new QTimeQuantity(this.desc.time = desc))
   }
   addArrival(desc: QArrivalDescription) {
-    console.log('add arrival', desc.pickID)
     this.desc.arrival.push(desc)
     const arrival = new QArrival(desc, this.id)
     this.arrival.push(arrival)
+    console.log(`[QOrigin] (${this.id.id}) add arrival: ${JSON.stringify(arrival.desc)}`)
     return arrival
   }
   deleteArrival(arrival: QArrival) {
-    console.log('delete arrival', arrival.pickID.id)
+    console.log(`[QOrigin] (${this.id.id}) delete arrival: ${JSON.stringify(arrival.desc)}`)
     const foundArrival = this.arrival.find(x => x.pickID.id === arrival.pickID.id)
     if (foundArrival != null) {
       this._getCache('arrival').splice(this._getCache('arrival').indexOf(arrival), 1)
@@ -510,17 +510,17 @@ export class QEvent extends CachedProperties {
   setPreferredMagnitudeID(value: string | undefined) { this._setCache('preferredMagnitudeID', new QResourceIdentifier(this.desc.preferredMagnitudeID = value)) }
   setPreferredFocalMechanismID(value: string | undefined) { this._setCache('preferredFocalMechanismID', new QResourceIdentifier(this.desc.preferredFocalMechanismID = value)) }
   addPick(desc: QPickDescription) {
-    console.log('add pick', desc['@publicID'])
     this.desc.pick.push(desc)
     const pick = new QPick(desc, this.id)
     this.pick.push(pick)
+    console.log(`[QEvent] (${this.id.id}) add pick: ${JSON.stringify(pick.desc)}`)
     return pick
   }
   deletePick(pick: QPick) {
-    console.log('delete pick', pick.publicID)
-    const foundPick = this.pick.find(x => x.publicID === pick.publicID)
-    if (foundPick != null) {
-      this._getCache('pick').splice(this._getCache('pick').indexOf(foundPick), 1)
+    console.log(`[QEvent] (${this.id.id}) delete pick: ${JSON.stringify(pick.desc)}`)
+    const pickFound = this.pick.find(x => x.publicID === pick.publicID)
+    if (pickFound != null) {
+      this._getCache('pick').splice(this._getCache('pick').indexOf(pickFound), 1)
     }
     const pickDesc = this.desc.pick.find(x => x['@publicID'] === pick.publicID)
     if (pickDesc != null) {
@@ -531,33 +531,39 @@ export class QEvent extends CachedProperties {
     this.desc.amplitude.push(desc)
     const amplitude = new QAmplitude(desc, this.id)
     this.amplitude.push(amplitude)
+    console.log(`[QEvent] (${this.id.id}) add amplitude: ${JSON.stringify(amplitude.desc)}`)
     return amplitude
   }
   addOrigin(desc: QOriginDescription) {
     this.desc.origin.push(desc)
     const origin = new QOrigin(desc, this.id)
     this.origin.push(origin)
+    console.log(`[QEvent] (${this.id.id}) add origin: ${JSON.stringify(origin.desc)}`)
     return origin
   }
   addMagnitude(desc: QMagnitudeDescription) {
     this.desc.magnitude.push(desc)
     const magnitude = new QMagnitude(desc, this.id)
     this.magnitude.push(magnitude)
+    console.log(`[QEvent] (${this.id.id}) add magnitude: ${JSON.stringify(magnitude.desc)}`)
     return magnitude
   }
   addStationMagnitude(desc: QStationMagnitudeDescription) {
     this.desc.stationMagnitude.push(desc)
     const staMag = new QStationMagnitude(desc, this.id)
     this.stationMagnitude.push(staMag)
+    console.log(`[QEvent] (${this.id.id}) add stationMagnitude: ${JSON.stringify(staMag.desc)}`)
     return staMag
   }
   addFocalMechanism(desc: QFocalMechanismDescription) {
     this.desc.focalMechanism.push(desc)
     const focalMechanism = new QFocalMechanism(desc, this.id)
     this.focalMechanism.push(focalMechanism)
+    console.log(`[QEvent] (${this.id.id}) add focalMechanism: ${JSON.stringify(focalMechanism.desc)}`)
     return focalMechanism
   }
   clearFocalMechanism() {
+    console.log(`[QEvent] (${this.id.id}) clear focalMechanism`)
     this.desc.focalMechanism = []
     this._setCache('focalMechanism', this.desc.focalMechanism.map(x => new QFocalMechanism(x, this.id)))
   }

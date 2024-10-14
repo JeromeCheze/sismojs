@@ -159,7 +159,7 @@ export const parse = (qml: XMLDocument) => {
     'eventParameters',
     CONVERSION_RULES
   ).event
-  console.log(events)
+  // console.log(events)
   // return events != null ? events.map((e: EventParameter) => processEvent(e)) : []
   return events != null ? events.map((e: QEventDescription) => new QEvent(e)) : []
 }
