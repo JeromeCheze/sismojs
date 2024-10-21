@@ -372,7 +372,7 @@ export class QOrigin extends CachedProperties {
     console.log(`[QOrigin] (${this.id.id}) delete arrival: ${JSON.stringify(arrival.desc)}`)
     const foundArrival = this.arrival.find(x => x.pickID.id === arrival.pickID.id)
     if (foundArrival != null) {
-      this._getCache('arrival').splice(this._getCache('arrival').indexOf(arrival), 1)
+      this._getCache('arrival').splice(this._getCache('arrival').indexOf(foundArrival), 1)
     }
     const arrivalDesc = this.desc.arrival.find(x => x.pickID === arrival.pickID.id)
     if (arrivalDesc != null) {
