@@ -170,7 +170,7 @@ export class QPick extends CachedProperties {
   get evaluationMode() { return this.desc.evaluationMode }
   set evaluationMode(value: QEvaluationMode) { this.desc.evaluationMode = value }
   get creationInfo() { return this.desc.creationInfo != null ? this._getCache('creationInfo') || this._setCache('creationInfo', new QCreationInfo(this.desc.creationInfo)) : undefined }
-  set creationInfo(value: QCreationInfoDescription) { this._setCache('creationInfo', new QCreationInfo(this.desc.creationInfo = value)) }
+  set creationInfo(value: QCreationInfoDescription | undefined) { this._setCache('creationInfo', value != null ? new QCreationInfo(this.desc.creationInfo = value) : undefined) }
 }
 
 export interface QArrivalDescription {
