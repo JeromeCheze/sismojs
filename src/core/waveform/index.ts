@@ -44,7 +44,7 @@ export class Trace {
     } else if (this.timeseries.length === 1) {
       return this.timeseries[0].data
     }
-    let data = this.timeseries[0].data
+    let data = this.timeseries[0].data.map(v => v)
     for (let i = 1; i < this.timeseries.length; i++) {
       if (this.timeseries[i].starttime < this.timeseries[i - 1].endtime) {
         if (this.timeseries[i - 1].endtime < this.timeseries[i].endtime) {
