@@ -179,7 +179,7 @@ export interface QArrivalDescription {
   phase: string
   azimuth?: number
   distance?: number
-  takeoffAngle?: number
+  takeoffAngle?: QRealQuantityDescription
   timeResidual?: number
   timeWeight?: number
 }
@@ -201,8 +201,8 @@ export class QArrival extends CachedProperties {
   set azimuth(value: number | undefined) { this.desc.azimuth = value }
   get distance() { return this.desc.distance }
   set distance(value: number | undefined) { this.desc.distance = value }
-  get takeoffAngle() { return this.desc.takeoffAngle }
-  set takeoffAngle(value: number | undefined) { this.desc.takeoffAngle = value }
+  get takeoffAngle() { return this._getCache('takeoffAngle') || this._setCache('takeoffAngle', this.desc.takeoffAngle != null ? new QRealQuantity(this.desc.takeoffAngle) : undefined) }
+  set takeoffAngle(value: QRealQuantityDescription | undefined) { this.desc.takeoffAngle = value; this._setCache('takeoffAngle', value != null ? new QRealQuantity(value) : undefined) }
   get timeResidual() { return this.desc.timeResidual }
   set timeResidual(value: number | undefined) { this.desc.timeResidual = value }
   get timeWeight() { return this.desc.timeWeight }
@@ -428,6 +428,7 @@ export interface QFocalMechanismDescription {
   stationDistributionRatio?: number
   evaluationMode?: QEvaluationMode
   comment?: QCommentDescription[]
+  creationInfo?: QCreationInfoDescription
 }
 
 export class QFocalMechanism extends CachedProperties {
@@ -449,6 +450,7 @@ export class QFocalMechanism extends CachedProperties {
   get methodID() { return this.desc.methodID }
   get stationDistributionRatio() { return this.desc.stationDistributionRatio }
   get comment() { return this.desc.comment }
+  get creationInfo() { return this.desc.creationInfo != null ? this._getCache('creationInfo') || this._setCache('creationInfo', new QCreationInfo(this.desc.creationInfo)) : undefined }
 }
 
 export interface QEventDescriptionDescription {
