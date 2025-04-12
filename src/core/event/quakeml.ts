@@ -38,6 +38,7 @@ const CONVERSION_RULES: ConversionRules = {
     'eventParameters.event.origin.arrival.timeWeight': parseFloat,
     'eventParameters.event.origin.arrival.distance': parseFloat,
     'eventParameters.event.origin.arrival.azimuth': parseFloat,
+    'eventParameters.event.origin.arrival.takeoffAngle.value': parseFloat,
     'eventParameters.event.magnitude.mag.value': parseFloat,
     'eventParameters.event.magnitude.mag.uncertainty': parseFloat,
     'eventParameters.event.magnitude.stationCount': parseInt,
