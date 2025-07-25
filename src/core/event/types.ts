@@ -138,6 +138,7 @@ export interface QPickDescription {
   filterID?: string
   methodID?: string
   evaluationMode: QEvaluationMode
+  evaluationStatus?: QEvaluationStatus
   onset?: QPickOnset
   phaseHint: string
   polarity?: QPickPolarity
@@ -169,6 +170,8 @@ export class QPick extends CachedProperties {
   set polarity(value: QPickPolarity | undefined) { this.desc.polarity = value }
   get evaluationMode() { return this.desc.evaluationMode }
   set evaluationMode(value: QEvaluationMode) { this.desc.evaluationMode = value }
+  get evaluationStatus() { return this.desc.evaluationStatus }
+  set evaluationStatus(value: QEvaluationStatus | undefined) { this.desc.evaluationStatus = value }
   get creationInfo() { return this.desc.creationInfo != null ? this._getCache('creationInfo') || this._setCache('creationInfo', new QCreationInfo(this.desc.creationInfo)) : undefined }
   set creationInfo(value: QCreationInfoDescription | undefined) { this._setCache('creationInfo', value != null ? new QCreationInfo(this.desc.creationInfo = value) : undefined) }
 }
