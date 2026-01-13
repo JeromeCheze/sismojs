@@ -1,5 +1,3 @@
-import { processEvent } from './event'
-// import type { EventParameter } from '../../types'
 import { QEvent, type QEventDescription } from './types'
 
 const EVENT_ID = 0

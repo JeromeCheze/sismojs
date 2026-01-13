@@ -394,7 +394,7 @@ export class Stream {
 export const read = (
   arr: ArrayBuffer,
   finishedCallback: (st: Stream) => void,
-  updateCallback: (p: number) => void
+  _: (p: number) => void
 ) => {
   finishedCallback(new Stream(new DataView(arr)))
 }
