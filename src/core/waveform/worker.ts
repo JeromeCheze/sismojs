@@ -313,18 +313,33 @@ class Stream {
       h.fsdh = this.decodeFSDH(dv, index, byteorder)
       // decode bloquette(s)
       let nextBloquette = h.fsdh.firstBlockette
+      let skip = false
       while (nextBloquette > 0) {
         let blktCode = dv.getUint16(index + nextBloquette, byteorder)
         if (blktCode === 1000) {
           h.blkt1000 = this.decodeBlkt1000(dv, index + nextBloquette, byteorder)
           byteorder = h.blkt1000.littleEndian
-          nextBloquette = 0
+          // nextBloquette = 0
+          nextBloquette = dv.getUint16(index + nextBloquette + 2, byteorder)
         } else if (blktCode === 1001) {
           // bloquette 1001 is ignored
           nextBloquette = dv.getUint16(index + nextBloquette + 2, byteorder)
+        } else if (blktCode === 100) {
+         // bloquette 100 is ignored
+          let samplingRate = dv.getFloat32(index + nextBloquette + 4, byteorder)
+          nextBloquette = dv.getUint16(index + nextBloquette + 2, byteorder)
+          if (100 * Math.abs(samplingRate - h.fsdh.samplingRate) / h.fsdh.samplingRate > 0.01) {
+            console.warn(\`\${h.fsdh.seedId}: Blockette 100: discard data, actual sampling rate (\${samplingRate}) is too different from the one in the header (\${h.fsdh.samplingRate})\`)
+            skip = true
+          }
+          console.warn(\`\${h.fsdh.seedId}: Blockette 100 ignored, using sampling rate \${h.fsdh.samplingRate} instead of \${samplingRate}\`)
         } else {
-          throw new Error(\`Unhandled bloquette type \${blktCode} (packet index : \${index})\`)
+          throw new Error(\`\${h.fsdh.seedId}: Unhandled bloquette type \${blktCode} (packet index : \${index})\`)
         }
+      }
+      if (skip) {
+        index += h.blkt1000.packetSize
+        continue
       }
       // decode data
       switch (h.blkt1000.encoding) {
