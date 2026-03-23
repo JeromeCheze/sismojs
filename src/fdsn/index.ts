@@ -1,5 +1,5 @@
 import core from '../core'
-import type { EventParameter, FDSNEventParams, FDSNStationBulkItem, FDSNStationParams, FDSNWaveformBulkItem, FDSNWaveformParams } from '../types/index.js'
+import type { FDSNEventParams, FDSNStationBulkItem, FDSNStationParams, FDSNWaveformBulkItem, FDSNWaveformParams } from '../types/index.js'
 import { QEvent } from '../core/event/types'
 
 export class Client {
