@@ -1,0 +1,12 @@
+{
+  "name": "sismojs",
+  "version": "2.0.0",
+  "description": "Toolkit to manipulate sismo data in the browser.",
+  "license": "AGPL-3.0-or-later",
+  "author": "Jérôme Chèze",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

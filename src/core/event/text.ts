@@ -1,5 +1,4 @@
-import { processEvent } from './event'
-import type { EventParameter } from '../../types'
+import { QEvent, type QEventDescription } from './types'
 
 const EVENT_ID = 0
 const TIME = 1
@@ -16,17 +15,17 @@ const MAG_AUTHOR = 11
 const EVENT_LOCATION_NAME = 12
 const EVENT_TYPE = 13
 
-export const parse = (text: string): EventParameter[] => {
+export const parse = (text: string): QEvent[] => {
   const lines = text.split('\n')
-  const events: EventParameter[] = []
+  const events: QEventDescription[] = []
   for (const line of lines.slice(1)) {
     if (line === '') {
       continue
     }
     const splited = line.split('|')
-    const event: EventParameter = {
+    const event: QEventDescription = {
       origin: [{
-        public_id: 'origin-0',
+        '@publicID': 'origin-0',
         time: {
           value: `${splited[TIME]}Z`
         },
@@ -40,29 +39,34 @@ export const parse = (text: string): EventParameter[] => {
           value: parseFloat(splited[DEPTH]) * 1e3
         },
         region: splited[EVENT_LOCATION_NAME],
-        creation_info: {
+        creationInfo: {
           author: splited[AUTHOR],
-          agency_id: splited[CONSTRIBUTOR]
-        }
+          agencyID: splited[CONSTRIBUTOR]
+        },
+        arrival: []
       }],
       magnitude: [{
-        public_id: 'magnitude-0',
-        origin_id: 'origin-0',
+        '@publicID': 'magnitude-0',
+        originID: 'origin-0',
         mag: {
           value: parseFloat(splited[MAGNITUDE])
         },
         type: splited[MAG_TYPE],
-        creation_info: {
+        creationInfo: {
           author: splited[MAG_AUTHOR],
-          agency_id: splited[CONSTRIBUTOR]
+          agencyID: splited[CONSTRIBUTOR]
         }
       }],
       type: splited[EVENT_TYPE],
-      public_id: splited[EVENT_ID],
-      preferred_origin_id: 'origin-0',
-      preferred_magnitude_id: 'magnitude-0'
+      '@publicID': splited[EVENT_ID],
+      preferredOriginID: 'origin-0',
+      preferredMagnitudeID: 'magnitude-0',
+      stationMagnitude: [],
+      focalMechanism: [],
+      amplitude: [],
+      pick: []
     }
     events.push(event)
   }
-  return events.map(e => processEvent(e))
+  return events.map(e => new QEvent(e))
 }

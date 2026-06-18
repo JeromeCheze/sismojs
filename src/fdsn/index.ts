@@ -1,5 +1,6 @@
 import core from '../core'
-import type { EventParameter, FDSNEventParams, FDSNStationBulkItem, FDSNStationParams, FDSNWaveformBulkItem, FDSNWaveformParams } from '../types/index.js'
+import type { FDSNEventParams, FDSNStationBulkItem, FDSNStationParams, FDSNWaveformBulkItem, FDSNWaveformParams } from '../types/index.js'
+import { QEvent } from '../core/event/types'
 
 export class Client {
   baseURL: string
@@ -12,18 +13,22 @@ export class Client {
     if (params.format != null && params.format !== 'text' && params.format !== 'xml') {
       throw new Error(`Unsupported format: ${params.format}`)
     }
-    return new Promise<EventParameter[]>((resolve, reject) => {
+    return new Promise<QEvent[]>((resolve, reject) => {
       const args = Object.entries(params).map(x => `${x[0]}=${x[1]}`).join('&')
       fetch(`${this.baseURL}/fdsnws/event/1/query?${args}`, {
         method: 'GET'
       }).then(response => {
         if (response.status === 200) {
           response.text().then(txt => {
-            if (params.format === undefined || params.format === 'xml') {
-              const doc = new DOMParser().parseFromString(txt, 'application/xml')
-              resolve(core.event.quakeml.parse(doc))
-            } else if (params.format === 'text') {
-              resolve(core.event.text.parse(txt))
+            if (txt === '') {
+              resolve([])
+            } else {
+              if (params.format === undefined || params.format === 'xml') {
+                const doc = new DOMParser().parseFromString(txt, 'application/xml')
+                resolve(core.event.quakeml.parse(doc))
+              } else if (params.format === 'text') {
+                resolve(core.event.text.parse(txt))
+              }
             }
           })
         } else {

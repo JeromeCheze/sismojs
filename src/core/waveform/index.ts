@@ -44,19 +44,33 @@ export class Trace {
     } else if (this.timeseries.length === 1) {
       return this.timeseries[0].data
     }
-    let data = this.timeseries[0].data
+    let data = this.timeseries[0].data.map(v => v)
     for (let i = 1; i < this.timeseries.length; i++) {
-      const gapLength = (this.timeseries[i].starttime - this.timeseries[i - 1].endtime) / 1e3
-      const nbSamples = Math.floor(gapLength * this.stats.samplingRate)
-      if (nbSamples > 0) {
-        const d = new Date()
-        d.setTime(this.timeseries[i - 1].endtime)
-        console.log(`${this.stats.id} : Warning: found gap of ${gapLength} seconds (${nbSamples}) | gap begin at ${d.toISOString()}`)
-        for (let n = 0; n < nbSamples; n++) {
-          data.push(null)
+      if (this.timeseries[i].starttime < this.timeseries[i - 1].endtime) {
+        if (this.timeseries[i - 1].endtime < this.timeseries[i].endtime) {
+          const overlapLength = (this.timeseries[i - 1].endtime - this.timeseries[i].starttime) / 1e3
+          const nbSamples = Math.floor(overlapLength * this.stats.samplingRate)
+          if (nbSamples > 0) {
+            console.log(`${this.stats.id} : Warning: found overlap of ${overlapLength} seconds (${nbSamples} samples)`)
+          }
+          data = data.concat(this.timeseries[i].data.slice(nbSamples))
+        } else {
+          const overlapLength = this.timeseries[i].data.length / this.stats.samplingRate
+          console.log(`${this.stats.id} : Warning: found overlap of ${overlapLength} seconds (all samples discarded)`)
         }
+      } else {
+        const gapLength = (this.timeseries[i].starttime - this.timeseries[i - 1].endtime) / 1e3
+        const nbSamples = Math.floor(gapLength * this.stats.samplingRate)
+        if (nbSamples > 0) {
+          const d = new Date()
+          d.setTime(this.timeseries[i - 1].endtime)
+          console.log(`${this.stats.id} : Warning: found gap of ${gapLength} seconds (${nbSamples}) | gap begin at ${d.toISOString()}`)
+          for (let n = 0; n < nbSamples; n++) {
+            data.push(null)
+          }
+        }
+        data = data.concat(this.timeseries[i].data)
       }
-      data = data.concat(this.timeseries[i].data)
     }
     return data
   }
@@ -327,20 +341,35 @@ export class Stream {
       h.fsdh = this.decodeFSDH(dv, index, byteorder)
       // decode bloquette(s)
       let nextBloquette = h.fsdh.firstBlockette
+      let skip = false
       while (nextBloquette > 0) {
         const blktCode = dv.getUint16(index + nextBloquette, byteorder)
         if (blktCode === 1000) {
           h.blkt1000 = this.decodeBlkt1000(dv, index + nextBloquette, byteorder)
           byteorder = h.blkt1000.littleEndian
-          nextBloquette = 0
+          nextBloquette = dv.getUint16(index + nextBloquette + 2, byteorder)
         } else if (blktCode === 1001) {
           // bloquette 1001 is ignored
+          console.log(`[${index}]${h.fsdh.seedId}: ignore blkt[1001]`)
           nextBloquette = dv.getUint16(index + nextBloquette + 2, byteorder)
+        } else if (blktCode === 100) {
+          // bloquette 100 is ignored
+          const samplingRate = dv.getFloat32(index + nextBloquette + 4, byteorder)
+          nextBloquette = dv.getUint16(index + nextBloquette + 2, byteorder)
+          if (100 * Math.abs(samplingRate - h.fsdh.samplingRate) / h.fsdh.samplingRate > 0.01) {
+            console.warn(`${h.fsdh.seedId}: Blockette 100: discard data, actual sampling rate (${samplingRate}) is too different from the one in the header (${h.fsdh.samplingRate})`)
+            skip = true
+          }
+          console.warn(`${h.fsdh.seedId}: Blockette 100 ignored, using sampling rate ${h.fsdh.samplingRate} instead of ${samplingRate}`)
         } else {
-          throw new Error(`Unhandled bloquette type ${blktCode} (packet index : ${index})`)
+          throw new Error(`${h.fsdh.seedId}: Unhandled bloquette type ${blktCode} (packet index : ${index})`)
         }
       }
       const hs = <MSEEDHeaderStrict>h
+      if (skip) {
+        index += hs.blkt1000.packetSize
+        continue
+      }
       // decode data
       switch (hs.blkt1000.encoding) {
         case 1: data = this.decodeINT16(dv, hs, index); break
@@ -379,7 +408,7 @@ export class Stream {
 export const read = (
   arr: ArrayBuffer,
   finishedCallback: (st: Stream) => void,
-  updateCallback: (p: number) => void
+  _: (p: number) => void
 ) => {
   finishedCallback(new Stream(new DataView(arr)))
 }
