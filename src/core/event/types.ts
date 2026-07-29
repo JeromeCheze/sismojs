@@ -71,7 +71,7 @@ export class QTimeQuantity {
   get upperUncertainty() { return this.desc.upperUncertainty }
   set upperUncertainty(value: number | undefined) { this.desc.upperUncertainty = value }
   get object() { return new Date(Date.parse(this.value)) }
-  get pretty() { return this.value != null ? this.value.replace('T', ' ').slice(0, 19) : this.value }
+  get pretty() { return this.value != null ? this.value.replace('T', ' ').replace('Z', '') : this.value }
 }
 
 export interface QRealQuantityDescription {
