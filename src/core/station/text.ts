@@ -1,20 +1,18 @@
 import type { Inventory } from '../../types'
 
-const NETWORK = 0
-const STATION = 1
-const LOCATION = 2
-const CHANNEL = 3
-const LATITUDE = 4
-const LONGITUDE = 5
-const ALTITUDE = 6
-const DEPTH = 7
-const AZIMUTH = 8
-const DIP = 9
-const SCALE = 11
-const UNITS = 13
-const SAMPLE_RATE = 14
-const STARTTIME = 15
-const ENDTIME = 16
+const COLS = {
+  network: ['network', 'description', 'starttime', 'endtime', 'totalStations'],
+  station: ['network', 'station', 'latitude', 'longitude', 'elevation', 'siteName', 'starttime', 'endtime'],
+  channel: ['network', 'station', 'location', 'channel', 'latitude', 'longitude', 'elevation', 'depth', 'azimuth', 'dip', 'sensorDescription', 'scale', 'scaleFrequency', 'scaleUnits', 'sampleRate', 'starttime', 'endtime']
+}
+
+function toDict(cols: string[], values: any[]): Record<string, any> {
+  const result: Record<string, any> = {}
+  for (let i = 0; i < cols.length; i++) {
+    result[cols[i]] = values[i]
+  }
+  return result
+}
 
 export const parse = (text: string) => {
   const result: Inventory = {}
@@ -22,34 +20,49 @@ export const parse = (text: string) => {
   for (const l of spInv) {
     if (l !== '' && l[0] !== '#') {
       const spLine = l.split('|')
-      const [net, sta, loc, cha] = [spLine[NETWORK], spLine[STATION], spLine[LOCATION], spLine[CHANNEL]]
-      if (result[net] === undefined) {
-        result[net] = {}
+      const level = spLine.length === COLS.network.length
+        ? 'network'
+        : spLine.length === COLS.station.length
+          ? 'station'
+          : spLine.length === COLS.channel.length
+            ? 'channel'
+            : null
+      if (level == null) {
+        throw new Error(`Failed to parse line: ${l}`)
       }
-      if (result[net][sta] === undefined) {
-        result[net][sta] = {
-          lat: parseFloat(spLine[LATITUDE]),
-          lon: parseFloat(spLine[LONGITUDE]),
-          alt: parseFloat(spLine[ALTITUDE]),
-          location: {}
+      const o = toDict(COLS[level], spLine)
+      if (result[o.network] === undefined) {
+        result[o.network] = {}
+      }
+      if (o.station != null) {
+        if (result[o.network][o.station] === undefined) {
+          result[o.network][o.station] = {
+            lat: parseFloat(o.latitude),
+            lon: parseFloat(o.longitude),
+            alt: parseFloat(o.elevation),
+            location: {}
+          }
+        }
+        if (o.location != null) {
+          const loc = o.location === '--' ? '' : o.location
+          if (result[o.network][o.station].location[loc] === undefined) {
+            result[o.network][o.station].location[loc] = {}
+          }
+          if (result[o.network][o.station].location[loc][o.channel] === undefined) {
+            result[o.network][o.station].location[loc][o.channel] = []
+          }
+          result[o.network][o.station].location[loc][o.channel].push({
+            azimuth: parseFloat(o.azimuth),
+            dip: parseFloat(o.dip),
+            scale: parseFloat(o.scale),
+            depth: parseFloat(o.depth),
+            starttime: new Date(Date.parse(o.starttime)),
+            endtime: o.endtime === '' ? new Date() : new Date(Date.parse(o.endtime)),
+            sample_rate: parseFloat(o.sampleRate),
+            units: o.units
+          })
         }
       }
-      if (result[net][sta].location[loc] === undefined) {
-        result[net][sta].location[loc] = {}
-      }
-      if (result[net][sta].location[loc][cha] === undefined) {
-        result[net][sta].location[loc][cha] = []
-      }
-      result[net][sta].location[loc][cha].push({
-        azimuth: parseFloat(spLine[AZIMUTH]),
-        dip: parseFloat(spLine[DIP]),
-        scale: parseFloat(spLine[SCALE]),
-        depth: parseFloat(spLine[DEPTH]),
-        starttime: new Date(Date.parse(spLine[STARTTIME])),
-        endtime: spLine[ENDTIME] === '' ? new Date() : new Date(Date.parse(spLine[ENDTIME])),
-        sample_rate: parseFloat(spLine[SAMPLE_RATE]),
-        units: spLine[UNITS]
-      })
     }
   }
   return result

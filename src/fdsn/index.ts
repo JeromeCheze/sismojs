@@ -61,10 +61,10 @@ export class Client {
     })
   }
 
-  getStationsBulk (bulk: FDSNStationBulkItem[]) {
+  getStationsBulk (bulk: FDSNStationBulkItem[], level: 'network' | 'station' | 'channel' = 'channel') {
     return new Promise((resolve, reject) => {
       const driver = core.station.text
-      const data = ['format=text', 'level=channel'].concat(bulk.map(([net, sta, loc, cha, t1, t2]) => {
+      const data = ['format=text', `level=${level}`].concat(bulk.map(([net, sta, loc, cha, t1, t2]) => {
         t1 = t1 instanceof Date ? t1.toISOString().slice(0, 19) : t1
         t2 = t2 instanceof Date ? t2.toISOString().slice(0, 19) : t2
         return `${net} ${sta} ${loc} ${cha} ${t1} ${t2}`
