@@ -121,7 +121,7 @@ export class Trace {
     let allData: number[] = []
     let nbSamples = 0
     for (const timeserie of this.timeseries) {
-      allData = allData.concat(<number[]>timeserie.data.filter(x => x != null))
+      allData = allData.concat(timeserie.data.filter(x => x != null) as number[])
       nbSamples += timeserie.data.length
     }
     return Math.floor(allData.reduce((x, y) => x + y) / nbSamples)
@@ -365,7 +365,7 @@ export class Stream {
           throw new Error(`${h.fsdh.seedId}: Unhandled bloquette type ${blktCode} (packet index : ${index})`)
         }
       }
-      const hs = <MSEEDHeaderStrict>h
+      const hs = h as MSEEDHeaderStrict
       if (skip) {
         index += hs.blkt1000.packetSize
         continue
