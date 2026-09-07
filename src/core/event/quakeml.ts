@@ -96,7 +96,9 @@ const RESOURCE_ID_KEYS = [
 // }
 
 export const removeResourcePrefix = (id: string) => {
-  if (id.indexOf('smi:org.gfz-potsdam.de/geofon/') === 0) {
+  if (id.indexOf('smi:org.gfz.de/geofon/') === 0) {
+    return id.replace('smi:org.gfz.de/geofon/', '')
+  } else if (id.indexOf('smi:org.gfz-potsdam.de/geofon/') === 0) {
     return id.replace('smi:org.gfz-potsdam.de/geofon/', '')
   } else if (id.indexOf('smi:') === 0 || id.indexOf('quakeml:') === 0) {
     const sp = id.split('/')
