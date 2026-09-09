@@ -1,5 +1,5 @@
 export default `class Trace {
-  constructor ({ id, samplingRate, data, stats, timeseries }) {
+  constructor ({ id, samplingRate, data, stats, timeseries, reserved }) {
     // This define a time tolerance (as a period ratio) for continuous traces
     let TOLERANCE = 0.005
     this.timeseries = timeseries != null ? timeseries : []
@@ -16,6 +16,7 @@ export default `class Trace {
         samplingRate,
         delta: 1.0 / samplingRate,
         npts: 0,
+        reserved: reserved,
         starttime: null,
         endtime: null
       }
@@ -175,6 +176,7 @@ class Stream {
     return {
       seedId: [net, sta, loc, cha].join('.'),
       starttime: starttime,
+      reserved: dv.getUint8(o + 7),
       npts: dv.getUint16(o + 30, byteorder),
       samplingRate: Math.abs(val),
       dataBegin: dv.getUint16(o + 44, byteorder),
@@ -365,6 +367,7 @@ class Stream {
         this.traces.push(new Trace({
           id: h.fsdh.seedId,
           samplingRate: h.fsdh.samplingRate,
+          reserved: h.fsdh.reserved,
           data: [{ starttime: h.fsdh.starttime, data }]
         }))
       }

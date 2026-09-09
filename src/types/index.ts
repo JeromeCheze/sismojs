@@ -264,6 +264,7 @@ export type TraceStats = {
   samplingRate: number
   delta: number
   npts: number
+  reserved?: number
   starttime: number | null
   endtime: number | null
 }
@@ -275,6 +276,7 @@ export type FSDH = {
   samplingRate: number
   dataBegin: number
   firstBlockette: number
+  reserved: number
 }
 
 export type Bloquette1000 = {
@@ -306,6 +308,7 @@ export type TraceConstructorParameters = {
   data?: TraceData[]
   stats?: TraceStats
   timeseries?: TraceTimeserie[]
+  reserved?: number
 }
 
 export type Channel = {

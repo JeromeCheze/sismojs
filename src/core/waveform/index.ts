@@ -26,6 +26,7 @@ export class Trace {
         samplingRate: opt.samplingRate,
         delta: 1.0 / opt.samplingRate,
         npts: 0,
+        reserved: opt.reserved,
         starttime: null,
         endtime: null
       }
@@ -202,6 +203,7 @@ export class Stream {
     return {
       seedId: [net, sta, loc, cha].join('.'),
       starttime,
+      reserved: dv.getUint8(o + 7),
       npts: dv.getUint16(o + 30, byteorder),
       samplingRate: Math.abs(val),
       dataBegin: dv.getUint16(o + 44, byteorder),
@@ -394,6 +396,7 @@ export class Stream {
         this.traces.push(new Trace({
           id: hs.fsdh.seedId,
           samplingRate: hs.fsdh.samplingRate,
+          reserved: hs.fsdh.reserved,
           data: [{ starttime: hs.fsdh.starttime, data }]
         }))
       }
