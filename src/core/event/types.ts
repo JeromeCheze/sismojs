@@ -126,7 +126,7 @@ export class QWaveformId {
   get locationCode() { return this.desc['@locationCode'] }
   get channelCode() { return this.desc['@channelCode'] }
   get netsta() { return [this.desc['@networkCode'], this.desc['@stationCode']].join('.') }
-  get seedid() { return [this.desc['@networkCode'], this.desc['@stationCode'], this.desc['@locationCode'] || '', this.desc['@channelCode']].join('.') }
+  get seedid() { return [this.desc['@networkCode'], this.desc['@stationCode'], this.desc['@locationCode'] || '', this.desc['@channelCode'] || ''].join('.') }
   get fdsnid() { return this.seedid.replace('..', '.--.') }
 }
 
